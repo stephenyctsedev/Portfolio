@@ -1,5 +1,8 @@
 import { iconEl } from './icons/index.js';
 
+// Windows XP's default menu show delay: an open flyout closes or switches only after the pointer rests elsewhere this long.
+export const MENU_DELAY_MS = 400;
+
 export function createStartMenu(rootEl, { userName, left, right, allPrograms, onLogOff, onTurnOff, sounds }) {
   rootEl.classList.add('xp-startmenu');
   rootEl.setAttribute('role', 'menu');
@@ -20,6 +23,8 @@ export function createStartMenu(rootEl, { userName, left, right, allPrograms, on
   const rightCol = rootEl.querySelector('.xp-sm-right');
   const flyouts = rootEl.querySelector('.xp-sm-flyouts');
   let isOpen = false;
+  let hoverTimer = null;
+  const anchors = []; // anchors[level] is the item whose flyout is open at that level
 
   function row(item, { iconSize = 24, arrow = false } = {}) {
     if (item.separator) { const sep = document.createElement('div'); sep.className = 'xp-sm-sep'; return sep; }
@@ -40,16 +45,30 @@ export function createStartMenu(rootEl, { userName, left, right, allPrograms, on
 
   function clearFlyouts(fromLevel = 0) {
     [...flyouts.children].filter((f) => Number(f.dataset.level) >= fromLevel).forEach((f) => f.remove());
+    anchors.length = Math.min(anchors.length, fromLevel);
   }
+  function cancelHover() { clearTimeout(hoverTimer); hoverTimer = null; }
+  function afterHover(fn) { cancelHover(); hoverTimer = setTimeout(() => { hoverTimer = null; fn(); }, MENU_DELAY_MS); }
+  function hoverOpener(items, level, anchorEl) {
+    if (anchors[level] === anchorEl) cancelHover();
+    else if (anchors.length <= level) showFlyout(items, level, anchorEl);
+    else afterHover(() => showFlyout(items, level, anchorEl));
+  }
+  function hoverElsewhere(level) { if (anchors.length > level) afterHover(() => clearFlyouts(level)); }
   function showFlyout(items, level, anchorEl) {
+    cancelHover();
     clearFlyouts(level);
+    anchors[level] = anchorEl;
     const panel = document.createElement('div');
     panel.className = 'xp-sm-flyout';
     panel.dataset.level = String(level);
+    panel.addEventListener('mouseenter', cancelHover);
     for (const item of items) {
       const el = row(item, { iconSize: 16 });
-      if (item.children) el.addEventListener('mouseenter', () => showFlyout(item.children, level + 1, el));
-      else if (item.action) el.addEventListener('mouseenter', () => clearFlyouts(level + 1));
+      if (item.children) {
+        el.addEventListener('mouseenter', () => hoverOpener(item.children, level + 1, el));
+        el.addEventListener('click', () => showFlyout(item.children, level + 1, el));
+      } else if (item.action) el.addEventListener('mouseenter', () => hoverElsewhere(level + 1));
       if (!item.separator && item.action) el.addEventListener('click', () => { close(); item.action(); });
       panel.append(el);
     }
@@ -57,7 +76,9 @@ export function createStartMenu(rootEl, { userName, left, right, allPrograms, on
     const menuRect = rootEl.getBoundingClientRect();
     const scale = menuRect.width / rootEl.offsetWidth || 1;
     const anchorRect = anchorEl.getBoundingClientRect();
-    panel.style.left = `${level === 0 ? rootEl.offsetWidth - 4 : rootEl.offsetWidth + level * 190}px`;
+    // .xp-sm-left and every .xp-sm-flyout are laid out against .xp-startmenu (their offsetParent), so their offsets are style.left's units.
+    const beside = anchorEl.closest('.xp-sm-flyout, .xp-sm-left');
+    panel.style.left = `${beside.offsetLeft + beside.offsetWidth - 4}px`;
     panel.style.bottom = `${Math.max(0, (menuRect.bottom - anchorRect.bottom) / scale - 2)}px`;
   }
 
@@ -69,7 +90,7 @@ export function createStartMenu(rootEl, { userName, left, right, allPrograms, on
   const all = row({ label: 'All Programs', icon: 'exe' }, { arrow: true });
   all.classList.add('xp-sm-allprograms');
   all.addEventListener('click', () => showFlyout(allPrograms, 0, all));
-  all.addEventListener('mouseenter', () => showFlyout(allPrograms, 0, all));
+  all.addEventListener('mouseenter', () => hoverOpener(allPrograms, 0, all));
   leftCol.append(all);
   for (const item of right) {
     const el = row(item, { iconSize: 22 });
@@ -78,8 +99,7 @@ export function createStartMenu(rootEl, { userName, left, right, allPrograms, on
   }
   rootEl.querySelector('[data-cmd="logoff"]').addEventListener('click', () => { close(); onLogOff(); });
   rootEl.querySelector('[data-cmd="turnoff"]').addEventListener('click', () => { close(); onTurnOff(); });
-  rootEl.querySelector('.xp-sm-columns').addEventListener('mouseenter', (e) => { if (!e.target.closest('.xp-sm-allprograms')) clearFlyouts(0); }, true);
-  rootEl.querySelector('.xp-sm-right').addEventListener('mouseenter', () => clearFlyouts(0));
+  rootEl.querySelector('.xp-sm-columns').addEventListener('mouseenter', (e) => { if (!e.target.closest('.xp-sm-allprograms')) hoverElsewhere(0); }, true);
 
   function onDocumentDown(e) { if (isOpen && !rootEl.contains(e.target) && !e.target.closest('.xp-start')) close(); }
   const focusables = () => [...rootEl.querySelectorAll('.xp-sm-item, .xp-sm-footer-btn')].filter((b) => !b.closest('.xp-sm-flyout'));
@@ -106,6 +126,7 @@ export function createStartMenu(rootEl, { userName, left, right, allPrograms, on
     if (!isOpen) return;
     isOpen = false;
     rootEl.hidden = true;
+    cancelHover();
     clearFlyouts(0);
     document.removeEventListener('pointerdown', onDocumentDown, true);
     document.removeEventListener('keydown', onKey);

@@ -76,6 +76,7 @@ Run before every release, in Chrome and Firefox at minimum (Edge and Safari when
 - [ ] Homepage shows every resume section and no phone number
 - [ ] PDF opens in the Adobe Reader window; Save a Copy downloads it; fallback shows when PDFs cannot embed
 - [ ] Every desktop icon, Start menu item, All Programs entry and Run command does something sensible
+- [ ] All Programs opens beside its button; moving straight or diagonally into it, or from Games diagonally to Minesweeper, never closes a menu; resting on another item closes it after about half a second
 - [ ] Right-click desktop → Properties opens Display Properties, wallpaper picker previews and persists across reload
 - [ ] Right-click taskbar → Task Manager lists open windows, End Task closes them, Processes tab shows fake system processes
 - [ ] Windows drag, resize, minimize, maximize, close; task buttons stay in sync
