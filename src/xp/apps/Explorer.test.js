@@ -197,4 +197,28 @@ describe('explorer internet shortcut in a project folder', () => {
     expect(launched.at(-1)[0]).toBe('external');
     expect(launched.at(-1)[1]).toMatchObject({ url: 'https://example.com/play/dior' });
   });
+
+  it('describes the selected shortcut with its type and destination', () => {
+    const win = openExplorer(ctx, PROJECT);
+    win.el.querySelector('[data-name="Play Dior Lip Glow.url"]').click();
+    const groups = [...win.el.querySelectorAll('.xp-taskpane-group')];
+    const selected = groups.find((g) => g.querySelector('.xp-taskpane-title').textContent === 'Selected Item');
+    expect(selected.textContent).toContain('Play Dior Lip Glow.url');
+    expect(selected.textContent).toContain('Internet Shortcut');
+    expect(selected.textContent).toContain('https://example.com/play/dior');
+  });
+
+  it('keeps the project details beside the selected shortcut', () => {
+    const win = openExplorer(ctx, PROJECT);
+    win.el.querySelector('[data-name="Play Dior Lip Glow.url"]').click();
+    const pane = win.el.querySelector('.xp-taskpane').textContent;
+    expect(pane).toContain('Dior Lip Glow Face Detection');
+    expect(pane).toContain('Gesture-controlled mini-game.');
+  });
+
+  it('shows no selected-item group for a shortcut that goes to a folder', () => {
+    const win = openExplorer(ctx, PATHS.myComputer);
+    win.el.querySelector('[data-name="Shared Documents"]').click();
+    expect([...win.el.querySelectorAll('.xp-taskpane-title')].map((t) => t.textContent)).not.toContain('Selected Item');
+  });
 });

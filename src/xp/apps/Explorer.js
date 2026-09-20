@@ -121,9 +121,15 @@ export function openExplorer(ctx, startPath = PATHS.myComputer) {
     return [`<b>${esc(node.name)}</b><br>${TYPE_NAMES[node.kind] ?? 'File'}`];
   }
 
+  // Only the .url shortcuts carry a destination. The shortcuts that stand in for a folder,
+  // like Shared Documents, have nothing worth describing and keep their empty pane.
+  const linkTarget = (node) => (node?.kind === 'shortcut' ? node.open?.payload?.url ?? null : null);
+
   // Kept separate from detailsLines so picking a photo adds to the project's description
   // instead of replacing it -- the description was disappearing before anyone could read it.
   function selectedItemLines(selected) {
+    const url = linkTarget(selected);
+    if (url) return [`<b>${esc(selected.name)}</b><br>Internet Shortcut<br>${esc(url)}`];
     const size = selected.width && selected.height ? `${selected.width} x ${selected.height}` : 'Video file';
     return [`<b>${esc(selected.name)}</b><br>${esc(size)}`];
   }
@@ -146,7 +152,7 @@ export function openExplorer(ctx, startPath = PATHS.myComputer) {
       groups.push(['Other Places', [link(parentLabel, `nav:${parent}`), link('My Documents', `nav:${PATHS.myDocuments}`), link('My Computer', `nav:${PATHS.myComputer}`)]]);
     }
     groups.push(['Details', detailsLines(node)]);
-    if (selected?.mediaKind) groups.push(['Selected Item', selectedItemLines(selected)]);
+    if (selected?.mediaKind || linkTarget(selected)) groups.push(['Selected Item', selectedItemLines(selected)]);
     taskpane.innerHTML = groups.map(([title, lines]) =>
       `<div class="xp-taskpane-group"><div class="xp-taskpane-title">${title}</div><div class="xp-taskpane-body">${lines.map((l) => `<div>${l}</div>`).join('')}</div></div>`).join('');
   }
