@@ -156,3 +156,45 @@ describe('explorer thumbnails', () => {
     expect(link).toBeUndefined();
   });
 });
+
+describe('explorer internet shortcut in a project folder', () => {
+  const linked = {
+    projects: [{
+      ...portfolio.projects[0], url: 'https://example.com/play/dior',
+    }],
+  };
+  let ctx, launched;
+  beforeEach(() => {
+    document.body.innerHTML = '<div id="screen"><div id="layer"></div></div>';
+    launched = [];
+    ctx = {
+      wm: createWindowManager(document.querySelector('#layer')),
+      fs: buildFileSystem(resume, linked),
+      mediaBase: '/XPcomputer/',
+      registry: { launch: (id, p) => launched.push([id, p]) },
+      dialogs: { message: () => Promise.resolve('OK') },
+      menus: createMenus(document.querySelector('#screen')),
+      toDesktopPoint: (x, y) => ({ x, y }),
+    };
+  });
+
+  it('still auto-picks thumbnails for a project folder holding a shortcut', () => {
+    const win = openExplorer(ctx, PROJECT);
+    expect(win.el.querySelector('.xp-explorer-items').classList.contains('xp-view-thumbnails')).toBe(true);
+    expect(win.el.querySelector('[data-name="img1.jpg"] img.xp-item-thumb')).not.toBeNull();
+  });
+
+  it('draws the shortcut as an icon rather than a broken thumbnail', () => {
+    const win = openExplorer(ctx, PROJECT);
+    const item = win.el.querySelector('[data-name="Play Dior Lip Glow.url"]');
+    expect(item.querySelector('img.xp-item-thumb')).toBeNull();
+    expect(item.querySelector('.xp-ico')).not.toBeNull();
+  });
+
+  it('opens the live game in a new tab when the shortcut is double-clicked', () => {
+    const win = openExplorer(ctx, PROJECT);
+    win.el.querySelector('[data-name="Play Dior Lip Glow.url"]').dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+    expect(launched.at(-1)[0]).toBe('external');
+    expect(launched.at(-1)[1]).toMatchObject({ url: 'https://example.com/play/dior' });
+  });
+});

@@ -24,9 +24,17 @@ const mediaFile = (item, slug, index) => ({
   open: { app: 'viewer', payload: { slug, index, slideshow: false } },
 });
 
+// A project that is still playable online gets an Internet Shortcut sitting next to its
+// screenshots, the way XP kept .url files in a folder. It goes last so the media indices
+// the viewer opens by stay in step with the portfolio record.
+const liveLink = (project) => shortcut(`Play ${project.folder}.url`, 'url', { app: 'external', payload: { url: project.url } });
+
 const projectFolder = (project) => folder(
   project.folder,
-  project.media.map((item, index) => mediaFile(item, project.slug, index)),
+  [
+    ...project.media.map((item, index) => mediaFile(item, project.slug, index)),
+    ...(project.url ? [liveLink(project)] : []),
+  ],
   { icon: 'pictures', project },
 );
 const driveError = (title, text) => ({ app: 'error', payload: { title, text, buttons: ['Retry', 'Cancel'] } });

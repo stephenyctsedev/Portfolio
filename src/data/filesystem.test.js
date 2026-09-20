@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import resume from './resume.json';
+import portfolioData from './portfolio.json';
 import { buildFileSystem, resolvePath, parentPath, PATHS } from './filesystem.js';
 
 describe('fake file system', () => {
@@ -80,5 +81,41 @@ describe('portfolio folders under My Pictures', () => {
     const readme = resolvePath(fs, `${PATHS.myDocuments}\\readme.txt`);
     expect(readme.open.payload.text).toContain('My Pictures');
     expect(readme.open.payload.text).not.toContain(resume.contact.portfolio);
+  });
+});
+
+describe('live link shortcut in a project folder', () => {
+  const withUrl = {
+    projects: [{
+      slug: 'dior-lip-glow', folder: 'Dior Lip Glow', name: 'Dior Lip Glow Face Detection',
+      category: 'company', tagline: 'Gesture-controlled mini-game.', description: 'A Dior-branded mini-game.',
+      tech: ['Unity', 'C#'], url: 'https://example.com/play/dior',
+      media: [{ file: 'img1.jpg', kind: 'image', src: 'portfolio/dior-lip-glow/img1.jpg', thumb: 'portfolio/dior-lip-glow/thumbs/img1.jpg', width: 1600, height: 1067 }],
+    }],
+  };
+  const folderOf = (portfolio, name) => resolvePath(buildFileSystem(resume, portfolio), `${PATHS.myDocuments}\\My Pictures\\${name}`);
+
+  it('adds an internet shortcut after the photos when the project has a url', () => {
+    const folder = folderOf(withUrl, 'Dior Lip Glow');
+    expect(folder.children.map((c) => c.name)).toEqual(['img1.jpg', 'Play Dior Lip Glow.url']);
+    expect(folder.children[1]).toMatchObject({ kind: 'shortcut', icon: 'url' });
+    expect(folder.children[1].open).toEqual({ app: 'external', payload: { url: 'https://example.com/play/dior' } });
+  });
+
+  it('gives the shortcut its own path under the project folder', () => {
+    const folder = folderOf(withUrl, 'Dior Lip Glow');
+    expect(folder.children[1].path).toBe(`${PATHS.myDocuments}\\My Pictures\\Dior Lip Glow\\Play Dior Lip Glow.url`);
+  });
+
+  it('adds no shortcut to a project without a url', () => {
+    const noUrl = { projects: [{ ...withUrl.projects[0], url: undefined }] };
+    expect(folderOf(noUrl, 'Dior Lip Glow').children.map((c) => c.name)).toEqual(['img1.jpg']);
+  });
+
+  it('ships the real Coin Pusher folder with its PlayCanvas shortcut', () => {
+    const folder = folderOf(portfolioData, 'Coin Pusher');
+    const link = folder.children.find((c) => c.kind === 'shortcut');
+    expect(link.name).toBe('Play Coin Pusher.url');
+    expect(link.open.payload.url).toBe('https://playcanv.as/p/gqstNXR5/');
   });
 });

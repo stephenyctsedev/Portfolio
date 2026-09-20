@@ -65,9 +65,12 @@ export function openExplorer(ctx, startPath = PATHS.myComputer) {
   }
   function go(delta) { index = Math.min(Math.max(index + delta, 0), history.length - 1); render(); }
   function setView(next) { view = next; viewLocked = true; render(); }
+  // Thumbnails are for folders of photos. A project folder can also hold the shortcut to the
+  // live build, and one .url file should not send the screenshots back to the icons view.
   function autoView(node) {
     const children = node.children ?? [];
-    return children.length > 0 && children.every((c) => c.mediaKind) ? 'thumbnails' : 'icons';
+    const hasMedia = children.some((c) => c.mediaKind);
+    return hasMedia && children.every((c) => c.mediaKind || c.kind === 'shortcut') ? 'thumbnails' : 'icons';
   }
   function openNode(node) {
     if (node.open?.app === 'explorer') { navigate(node.open.payload.path); return; }
