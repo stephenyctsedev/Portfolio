@@ -61,6 +61,7 @@ export function openExplorer(ctx, startPath = PATHS.myComputer) {
     history.splice(index + 1);
     history.push(path);
     index = history.length - 1;
+    ctx.track?.('app_open', { app_id: 'explorer', path });
     render();
   }
   function go(delta) { index = Math.min(Math.max(index + delta, 0), history.length - 1); render(); }

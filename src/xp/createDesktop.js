@@ -30,7 +30,14 @@ function defaultOpenExternal(url) {
   window.open(url, '_blank', 'noopener,noreferrer');
 }
 
-export function createDesktop(rootEl, { resume, portfolio, pdfHref, mediaBase = '', repoUrl, storage = safeStorage(), reducedMotion = false, openExternal = defaultOpenExternal } = {}) {
+/** Host only, for analytics: mailto links report 'mailto' so an address is never sent. */
+function linkHost(url) {
+  if (url.startsWith('mailto:')) return 'mailto';
+  try { return new URL(url, location.href).host; } catch { return 'unknown'; }
+}
+
+export function createDesktop(rootEl, { resume, portfolio, pdfHref, mediaBase = '', repoUrl, storage = safeStorage(), reducedMotion = false, openExternal: openExternalRaw = defaultOpenExternal, track = () => {} } = {}) {
+  const openExternal = (url) => { track('external_link', { host: linkHost(url) }); openExternalRaw(url); };
   rootEl.classList.add('xp-screen');
   rootEl.tabIndex = -1;
   rootEl.innerHTML = `
@@ -58,7 +65,7 @@ export function createDesktop(rootEl, { resume, portfolio, pdfHref, mediaBase = 
     const s = rect.width / DESKTOP_WIDTH || 1;
     return { x: (clientX - rect.left) / s, y: (clientY - rect.top) / s };
   };
-  const ctx = { wm, dialogs, menus, sounds, resume, portfolio, fs, pdfHref, mediaBase, repoUrl, storage, openExternal, screenEl: rootEl, toDesktopPoint, reducedMotion, desktopEl, wallpaperUrl };
+  const ctx = { wm, dialogs, menus, sounds, resume, portfolio, fs, pdfHref, mediaBase, repoUrl, storage, openExternal, track, screenEl: rootEl, toDesktopPoint, reducedMotion, desktopEl, wallpaperUrl };
   applyWallpaper(desktopEl, storage.get('xpcomputer.wallpaper') ?? 'hills', wallpaperUrl);
   const registry = createRegistry(ctx);
   ctx.registry = registry;

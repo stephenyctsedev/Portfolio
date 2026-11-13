@@ -3,6 +3,7 @@ import { pickMode, detectEnv } from './modes.js';
 import { createDesktop } from './xp/createDesktop.js';
 import resume from './data/resume.json';
 import portfolio from './data/portfolio.json';
+import { initAnalytics, track } from './analytics.js';
 
 const REPO_URL = 'https://github.com/stephenyctsedev/XPcomputer';
 const pdfHref = `${import.meta.env.BASE_URL}resume/resume-main.pdf`;
@@ -11,14 +12,16 @@ const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const app = document.querySelector('#app');
 const mode = pickMode(detectEnv());
 
+initAnalytics();
 const screenEl = document.createElement('div');
-const desktop = createDesktop(screenEl, { resume, portfolio, pdfHref, mediaBase, repoUrl: REPO_URL, reducedMotion });
+const desktop = createDesktop(screenEl, { resume, portfolio, pdfHref, mediaBase, repoUrl: REPO_URL, reducedMotion, track });
 
 (async () => {
   if (mode === 'room') {
     try {
       const { mountRoom } = await import('./room/mount.js');
       await mountRoom(app, screenEl, desktop, { reducedMotion });
+      track('site_mode', { mode: 'room' });
       return;
     } catch (err) {
       console.error('[XPcomputer] 3D room failed to start; falling back to the flat desktop.', err);
@@ -26,6 +29,7 @@ const desktop = createDesktop(screenEl, { resume, portfolio, pdfHref, mediaBase,
     }
   }
   mountFlat(app, screenEl, desktop, mode === 'flat');
+  track('site_mode', { mode: 'flat' });
 })();
 
 /** Center and scale the 1024x768 screen to the viewport; interactive immediately; boots on load. */

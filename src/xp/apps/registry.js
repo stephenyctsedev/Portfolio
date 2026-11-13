@@ -15,6 +15,9 @@ export function createRegistry(ctx) {
           text: `Windows cannot find '${id}'. Make sure you typed the name correctly, and then try again.`,
         });
       }
+      const params = { app_id: id };
+      for (const key of ['path', 'slug']) if (typeof payload?.[key] === 'string') params[key] = payload[key];
+      ctx.track?.('app_open', params);
       return def.launch(ctx, payload);
     },
   };

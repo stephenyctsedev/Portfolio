@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import resume from '../../data/resume.json';
 import { buildFileSystem, PATHS } from '../../data/filesystem.js';
 import { createWindowManager } from '../WindowManager.js';
@@ -51,6 +51,19 @@ describe('explorer', () => {
     expect(address(win)).toBe('C:');
     win.el.querySelector('[data-cmd="forward"]').click();
     expect(address(win)).toBe('My Computer');
+  });
+
+  it('reports each folder navigated into, but not the initial open or back/forward', () => {
+    const track = vi.fn();
+    ctx.track = track;
+    const win = openExplorer(ctx, PATHS.myComputer);
+    expect(track).not.toHaveBeenCalled();
+    win.el.querySelector('[data-name="Local Disk (C:)"]').dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+    expect(track).toHaveBeenCalledTimes(1);
+    expect(track).toHaveBeenCalledWith('app_open', { app_id: 'explorer', path: 'C:' });
+    win.el.querySelector('[data-cmd="back"]').click();
+    win.el.querySelector('[data-cmd="forward"]').click();
+    expect(track).toHaveBeenCalledTimes(1);
   });
 
   it('opens files through the registry and drives through the error app', () => {

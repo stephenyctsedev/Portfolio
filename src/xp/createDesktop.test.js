@@ -123,4 +123,38 @@ describe('createDesktop', () => {
     expect(desktop.el.dataset.power).toBe('on');
     expect(desktop.powerState).toBe('on');
   });
+
+  describe('analytics', () => {
+    const mountTracked = () => {
+      const track = vi.fn();
+      const openExternal = vi.fn();
+      const desktop = createDesktop(document.querySelector('#root'), {
+        resume, pdfHref: '/Portfolio/resume/resume-main.pdf', repoUrl: 'https://github.com/stephenyctsedev/XPcomputer', openExternal, track, reducedMotion: true,
+      });
+      return { desktop, track, openExternal };
+    };
+    it('reports app_open when an app launches', () => {
+      const { desktop, track } = mountTracked();
+      desktop.ctx.registry.launch('iexplore');
+      expect(track).toHaveBeenCalledWith('app_open', { app_id: 'iexplore' });
+    });
+    it('reports external_link with the host only and still opens the full url', () => {
+      const { desktop, track, openExternal } = mountTracked();
+      desktop.ctx.openExternal('https://github.com/stephenyctsedev/XPcomputer');
+      expect(track).toHaveBeenCalledWith('external_link', { host: 'github.com' });
+      expect(openExternal).toHaveBeenCalledWith('https://github.com/stephenyctsedev/XPcomputer');
+    });
+    it('never sends an email address', () => {
+      const { desktop, track, openExternal } = mountTracked();
+      desktop.ctx.openExternal('mailto:me@example.com');
+      expect(track).toHaveBeenCalledWith('external_link', { host: 'mailto' });
+      expect(JSON.stringify(track.mock.calls)).not.toContain('me@example.com');
+      expect(openExternal).toHaveBeenCalledWith('mailto:me@example.com');
+    });
+    it('handles a relative pdf href', () => {
+      const { desktop, track } = mountTracked();
+      expect(() => desktop.ctx.openExternal('/Portfolio/resume/resume-main.pdf')).not.toThrow();
+      expect(typeof track.mock.calls.find(([name]) => name === 'external_link')[1].host).toBe('string');
+    });
+  });
 });

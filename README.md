@@ -53,6 +53,24 @@ when the encoded file is missing.
 Pushing to `main` runs tests, builds, and deploys to GitHub Pages
 (`.github/workflows/deploy.yml`). Pages source must be set to "GitHub Actions".
 
+## Analytics
+
+Google Analytics 4 runs on the deployed site only; `npm run dev` and the tests never load it.
+The Measurement ID is `GA_MEASUREMENT_ID` in `src/analytics.js`. Events:
+
+- `app_open` `{app_id, path?, slug?}`: an app was launched, or an Explorer window navigated into a folder (path = that folder, slug = portfolio project in the picture viewer). The `error`, `run` and `external` ids are dialogs/helpers; ignore them when counting real app opens.
+- `external_link` `{host}`: an outbound link was opened (host only; `mailto` links report `mailto`).
+- `site_mode` `{mode}`: `room` or `flat`, once per load.
+
+No personal data or free text is sent, and there is no cookie banner. To check it, open the live
+site and watch GA4 > Reports > Realtime.
+
+GA4 only breaks events down by parameter in standard reports once the parameter is registered:
+in GA4 go to Admin > Custom definitions > Create custom dimension (scope: Event) for each of
+`app_id`, `path`, `slug`, `host` and `mode`. Registration is not retroactive, so do it before
+the data you care about arrives. Note that `npm run preview` of a production build also reports
+to the live property.
+
 ## Controls
 
 - Desktop: single click selects an icon, double click or Enter opens it; Alt+F4 closes the focused window; Escape closes dialogs.
