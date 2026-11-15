@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import resume from '../../data/resume.json';
 import { renderHomepage } from './Homepage.js';
-import { handleHomepageClick, scrollToAnchor } from './InternetExplorer.js';
+import { handleHomepageClick, scrollToAnchor, buildFavorites } from './InternetExplorer.js';
+import { PATHS } from '../../data/filesystem.js';
 
 const opts = { pdfHref: '/resume.pdf', repoUrl: 'https://github.com/example/repo', visitors: 1 };
 
@@ -77,5 +78,33 @@ describe('scrollToAnchor', () => {
 
   it('does nothing when the id does not exist', () => {
     expect(scrollToAnchor(homepageDoc(), 'nope')).toBe(false);
+  });
+});
+
+describe('buildFavorites', () => {
+  let registry, openExternal, goHome, items;
+  const item = (label) => items.find((i) => i.label === label);
+  beforeEach(() => {
+    registry = { launch: vi.fn() };
+    openExternal = vi.fn();
+    goHome = vi.fn();
+    items = buildFavorites({ resume, repoUrl: opts.repoUrl, registry, openExternal, goHome });
+  });
+
+  it('Portfolio opens My Pictures in Explorer and never goes off-site', () => {
+    item('Portfolio').action();
+    expect(registry.launch).toHaveBeenCalledWith('explorer', { path: `${PATHS.myDocuments}\\My Pictures` });
+    expect(openExternal).not.toHaveBeenCalled();
+  });
+
+  it('keeps the other favourites as they were', () => {
+    item('Homepage').action();
+    expect(goHome).toHaveBeenCalledTimes(1);
+    item('Resume (PDF)').action();
+    expect(registry.launch).toHaveBeenCalledWith('reader');
+    item('LinkedIn').action();
+    expect(openExternal).toHaveBeenCalledWith(resume.contact.linkedin);
+    item('Source on GitHub').action();
+    expect(openExternal).toHaveBeenCalledWith(opts.repoUrl);
   });
 });

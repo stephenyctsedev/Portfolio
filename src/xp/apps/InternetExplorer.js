@@ -1,6 +1,7 @@
 import { iconEl } from '../icons/index.js';
 import { attachMenubar } from '../Menu.js';
 import { renderHomepage } from './Homepage.js';
+import { PATHS } from '../../data/filesystem.js';
 
 export const HOME_URL = 'http://www.stephentse.local/index.html';
 const VISITOR_KEY = 'xpcomputer.visitors';
@@ -42,6 +43,18 @@ export function handleHomepageClick(e, { registry, openExternal, onAnchor }) {
   openExternal(href);
 }
 
+/** The Favorites menu. "Portfolio" opens My Pictures: this site is the portfolio, so an external link would be a no-op. */
+export function buildFavorites({ resume, repoUrl, registry, openExternal, goHome }) {
+  return [
+    { label: 'Homepage', action: goHome },
+    { label: 'Resume (PDF)', action: () => registry.launch('reader') },
+    { separator: true },
+    { label: 'LinkedIn', action: () => openExternal(resume.contact.linkedin) },
+    { label: 'Portfolio', action: () => registry.launch('explorer', { path: `${PATHS.myDocuments}\\My Pictures` }) },
+    { label: 'Source on GitHub', action: () => openExternal(repoUrl) },
+  ];
+}
+
 export function openInternetExplorer(ctx) {
   const { wm, dialogs, menus, registry, resume, pdfHref, repoUrl, storage, openExternal } = ctx;
   const body = document.createElement('div');
@@ -73,14 +86,7 @@ export function openInternetExplorer(ctx) {
   const win = wm.open({ appId: 'iexplore', title: `${resume.displayName}'s Homepage - Microsoft Internet Explorer`.replace('Microsoft ', ''), icon: 'ie', width: 800, height: 600, minWidth: 420, minHeight: 300, content: body });
 
   const notAvailable = () => dialogs.message({ title: 'Internet Explorer', kind: 'info', owner: win, text: 'This feature is not available in the demo. Try the homepage links instead.' });
-  const favorites = () => [
-    { label: 'Homepage', action: load },
-    { label: 'Resume (PDF)', action: () => registry.launch('reader') },
-    { separator: true },
-    { label: 'LinkedIn', action: () => openExternal(resume.contact.linkedin) },
-    { label: 'Portfolio', action: () => openExternal(resume.contact.portfolio) },
-    { label: 'Source on GitHub', action: () => openExternal(repoUrl) },
-  ];
+  const favorites = () => buildFavorites({ resume, repoUrl, registry, openExternal, goHome: load });
   attachMenubar(body.querySelector('.xp-ie-menubar'), menus, {
     File: [{ label: 'New Window', action: () => openInternetExplorer(ctx) }, { label: 'Save As...', action: () => registry.launch('reader') }, { separator: true }, { label: 'Close', action: () => win.close() }],
     Edit: [{ label: 'Cut', disabled: true }, { label: 'Copy', disabled: true }, { label: 'Paste', disabled: true }],

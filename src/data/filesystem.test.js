@@ -14,11 +14,31 @@ describe('fake file system', () => {
   it('generates one project file per job with the job details', () => {
     const projects = resolvePath(fs, `${PATHS.myDocuments}\\Projects`);
     expect(projects.children).toHaveLength(resume.experience.length);
-    const first = projects.children[0];
-    expect(first.name).toBe('Sun Wah Supermarket.txt');
-    expect(first.open.app).toBe('notepad');
-    expect(first.open.payload.text).toContain(resume.experience[0].bullets[0]);
-    expect(first.path).toBe(`${PATHS.myDocuments}\\Projects\\Sun Wah Supermarket.txt`);
+    const job = resume.experience.find((j) => j.company.startsWith('Sun Wah Supermarket'));
+    const file = projects.children.find((c) => c.name === 'Sun Wah Supermarket.txt');
+    expect(file.open.app).toBe('notepad');
+    expect(file.open.payload.text).toContain(job.bullets[0]);
+    expect(file.path).toBe(`${PATHS.myDocuments}\\Projects\\Sun Wah Supermarket.txt`);
+  });
+  it('gives every project file a unique name, even for jobs at the same company', () => {
+    const names = resolvePath(fs, `${PATHS.myDocuments}\\Projects`).children.map((c) => c.name);
+    expect(new Set(names).size).toBe(names.length);
+  });
+  it('keeps each of several same-company jobs reachable by its own path', () => {
+    const shared = { period: '2025 – Present', company: 'Self-Directed, Winnipeg, Canada' };
+    const synthetic = buildFileSystem({
+      ...resume,
+      experience: [
+        { ...shared, title: 'Personal Project: Alpha', bullets: ['alpha bullet'] },
+        { ...shared, title: 'Personal Project: Beta', bullets: ['beta bullet'] },
+        { period: '2023', title: 'Store Associate', company: 'Acme, Winnipeg', bullets: ['acme bullet'] },
+      ],
+    });
+    const [alpha, beta, acme] = resolvePath(synthetic, `${PATHS.myDocuments}\\Projects`).children;
+    expect(alpha.name).not.toBe(beta.name);
+    expect(resolvePath(synthetic, alpha.path).open.payload.text).toContain('alpha bullet');
+    expect(resolvePath(synthetic, beta.path).open.payload.text).toContain('beta bullet');
+    expect(acme.name).toBe('Acme.txt');
   });
   it('maps executables to apps and documents to viewers', () => {
     expect(resolvePath(fs, 'C:\\WINDOWS\\system32\\sol.exe').open).toEqual({ app: 'sol' });

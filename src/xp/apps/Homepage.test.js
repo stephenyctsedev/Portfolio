@@ -11,7 +11,9 @@ describe('renderHomepage', () => {
     expect(html).toContain(resume.displayName);
     expect(html).toContain(resume.title);
     expect(html).toContain(resume.summary.slice(0, 40));
-    for (const job of resume.experience) { expect(html).toContain(job.title); expect(html).toContain(job.bullets[0]); }
+    // Compare rendered text, not raw markup: bullets may contain characters (apostrophes) that are correctly HTML-escaped.
+    const text = new DOMParser().parseFromString(html, 'text/html').body.textContent;
+    for (const job of resume.experience) { expect(text).toContain(job.title); expect(text).toContain(job.bullets[0]); }
     for (const skill of resume.expertise) expect(html).toContain(skill);
     for (const e of resume.education) expect(html).toContain(e.degree);
     for (const l of resume.languages) expect(html).toContain(`${l.name}: ${l.level}`);
@@ -33,6 +35,25 @@ describe('renderHomepage', () => {
   });
   it('escapes HTML in content', () => {
     expect(renderHomepage({ ...resume, displayName: '<b>x</b>' }, opts)).toContain('&lt;b&gt;x&lt;/b&gt;');
+  });
+  describe("a job's repo link", () => {
+    const job = { period: '2025 – Present', title: 'Personal Project: X', company: 'Self-Directed, Winnipeg, Canada', link: { href: 'https://github.com/o/x', label: 'github.com/o/x' }, bullets: ['did a thing'] };
+    const page = (j) => renderHomepage({ ...resume, experience: [j] }, opts);
+
+    it('shows the link after the company as a new-tab link', () => {
+      const out = page(job);
+      expect(out).toContain('<i>Self-Directed, Winnipeg, Canada</i>');
+      expect(out).toContain('<a href="https://github.com/o/x" target="_blank" rel="noopener">github.com/o/x</a>');
+    });
+    it('escapes the link href and label', () => {
+      const out = page({ ...job, link: { href: 'https://a.b/?q="x"', label: '<b>' } });
+      expect(out).toContain('&quot;');
+      expect(out).toContain('&lt;b&gt;');
+      expect(out).not.toContain('<a href="https://a.b/?q="x"');
+    });
+    it('renders jobs without a link exactly as before', () => {
+      expect(page({ ...job, link: undefined })).toContain('<i>Self-Directed, Winnipeg, Canada</i><ul>');
+    });
   });
   it('links Projects and Portfolio into My Pictures rather than off-site', () => {
     const html = renderHomepage(resume, { pdfHref: '/x.pdf', repoUrl: 'https://example.com' });

@@ -70,6 +70,37 @@ describe('sections', () => {
   });
 });
 
+describe('experience links', () => {
+  const entry = (company) => `\\expEntry{2025 -- Present}{Personal Project: X}{${company}}{\\item did a thing}`;
+
+  it('splits the repo link out of the company line', () => {
+    const [job] = parseExperience(entry('Self-Directed, Winnipeg, Canada \\textbullet\\ \\href{https://github.com/o/x}{github.com/o/x}'));
+    expect(job.company).toBe('Self-Directed, Winnipeg, Canada');
+    expect(job.link).toEqual({ href: 'https://github.com/o/x', label: 'github.com/o/x' });
+  });
+  it('unescapes the link label', () => {
+    const [job] = parseExperience(entry('Self-Directed \\textbullet\\ \\href{https://github.com/o/my_repo}{github.com/o/my\\_repo}'));
+    expect(job.link.label).toBe('github.com/o/my_repo');
+  });
+  it('unescapes LaTeX escapes inside the link URL, not only the label', () => {
+    const [job] = parseExperience(entry('Self-Directed \\textbullet\\ \\href{https://github.com/o/my\\_repo\\#readme}{github.com/o/my\\_repo}'));
+    expect(job.link.href).toBe('https://github.com/o/my_repo#readme');
+  });
+  it('ignores non-http links', () => {
+    const [job] = parseExperience(entry('Self-Directed \\textbullet\\ \\href{javascript:alert(1)}{x}'));
+    expect(job).not.toHaveProperty('link');
+    expect(job.company).toBe('Self-Directed');
+  });
+  it('leaves company alone when there is no bullet separator', () => {
+    const [job] = parseExperience(entry('Acme \\href{https://a.b}{a.b}'));
+    expect(job.company).toBe('Acme a.b');
+    expect(job).not.toHaveProperty('link');
+  });
+  it('leaves entries without a link unchanged', () => {
+    expect(parseExperience(files['experience.tex'])[0]).not.toHaveProperty('link');
+  });
+});
+
 describe('buildResume', () => {
   it('derives the display name', () => {
     expect(deriveDisplayName('YIU CHUNG TSE, STEPHEN')).toBe('Stephen Tse');

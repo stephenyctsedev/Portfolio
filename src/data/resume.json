@@ -7,7 +7,7 @@
     "email": "stephenyctsedev@gmail.com",
     "location": "Winnipeg, Manitoba, Canada",
     "linkedin": "https://www.linkedin.com/in/stephenyctse/",
-    "portfolio": "https://stephenyctse.wixsite.com/portfolio"
+    "portfolio": "https://stephenyctsedev.github.io/Portfolio"
   },
   "expertise": [
     "Unity",
@@ -19,7 +19,9 @@
     "C#",
     "Node.js",
     "PlayCanvas",
-    "Socket.IO"
+    "Socket.IO",
+    "Docker",
+    "Claude Code"
   ],
   "languages": [
     {
@@ -48,6 +50,31 @@
     }
   ],
   "experience": [
+    {
+      "period": "2025 – Present",
+      "title": "Personal Project: TransactionChecker",
+      "company": "Self-Directed, Winnipeg, Canada",
+      "bullets": [
+        "Designed and built a Python service that watches Gmail over IMAP IDLE for bank alert emails and posts parsed transactions to a budgeting app's REST API; plug-in parsers per bank, 124 pytest tests",
+        "Docker on a self-managed Synology NAS (reverse proxy/DDNS, network segmentation, Tailscale); GitHub Actions runs the tests and publishes the image only when they pass"
+      ],
+      "link": {
+        "href": "https://github.com/stephenyctsedev/TransactionChecker",
+        "label": "github.com/stephenyctsedev/TransactionChecker"
+      }
+    },
+    {
+      "period": "2026",
+      "title": "Personal Project: ObsidianMCP",
+      "company": "Self-Directed, Winnipeg, Canada",
+      "bullets": [
+        "Built a Node.js/Express MCP server letting Claude read, write and search notes in an Obsidian vault on a NAS, with bearer-token auth, path-traversal guards and an audit log"
+      ],
+      "link": {
+        "href": "https://github.com/stephenyctsedev/obsidianMCP",
+        "label": "github.com/stephenyctsedev/obsidianMCP"
+      }
+    },
     {
       "period": "2023 – Present",
       "title": "Store Associate",
@@ -94,5 +121,5 @@
     }
   ],
   "sourceBranch": "main",
-  "updated": "2026-09-10"
+  "updated": "2026-11-15"
 }

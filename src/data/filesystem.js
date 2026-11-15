@@ -42,6 +42,12 @@ const binError = { app: 'error', payload: { title: 'Recycle Bin', text: 'This fi
 
 const safeName = (company) => company.split(',')[0].trim().replace(/[\\/:*?"<>|]/g, '');
 
+/** One file name per job: the company, plus the job title only where two jobs share a company (e.g. several personal projects). */
+const projectFileNames = (jobs) => {
+  const byCompany = jobs.map((job) => safeName(job.company));
+  return jobs.map((job, i) => (byCompany.filter((name) => name === byCompany[i]).length > 1 ? `${byCompany[i]} - ${safeName(job.title)}` : byCompany[i]));
+};
+
 const jobText = (job) => [job.title, job.company, job.period, '', ...job.bullets.map((b) => `- ${b}`)].join('\n');
 
 const readmeText = (resume) => `${resume.displayName} — ${resume.title}
@@ -75,7 +81,8 @@ const todoText = `TODO
 `;
 
 export function buildFileSystem(resume, portfolio = { projects: [] }) {
-  const projects = resume.experience.map((job) => notepadFile(`${safeName(job.company)}.txt`, jobText(job)));
+  const fileNames = projectFileNames(resume.experience);
+  const projects = resume.experience.map((job, i) => notepadFile(`${fileNames[i]}.txt`, jobText(job)));
   const myDocuments = folder('My Documents', [
     folder('My Pictures', (portfolio.projects ?? []).map(projectFolder), { icon: 'pictures' }),
     folder('My Music', []),

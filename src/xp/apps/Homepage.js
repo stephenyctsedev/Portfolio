@@ -30,7 +30,7 @@ export function renderHomepage(resume, { pdfHref, repoUrl, visitors = 1337 } = {
   <p>${esc(summary)}</p>
   <h3 id="experience">Experience</h3>
   <table class="jobs" width="100%" cellpadding="6" cellspacing="0">
-  ${experience.map((job) => `<tr><td class="period">${esc(job.period)}</td><td><b>${esc(job.title)}</b><br><i>${esc(job.company)}</i><ul>${job.bullets.map((b) => `<li>${esc(b)}</li>`).join('')}</ul></td></tr>`).join('\n  ')}
+  ${experience.map((job) => `<tr><td class="period">${esc(job.period)}</td><td><b>${esc(job.title)}</b><br><i>${esc(job.company)}</i>${job.link ? ` &middot; ${external(job.link.href, job.link.label)}` : ''}<ul>${job.bullets.map((b) => `<li>${esc(b)}</li>`).join('')}</ul></td></tr>`).join('\n  ')}
   </table>
   <h3 id="expertise">Expertise</h3>
   <table class="skills" cellpadding="2"><tr>${columns.map((col) => `<td><ul>${col.map((s) => `<li>${esc(s)}</li>`).join('')}</ul></td>`).join('')}</tr></table>

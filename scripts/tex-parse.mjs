@@ -98,12 +98,16 @@ export function parseExperience(tex) {
   let pos = src.indexOf('\\expEntry');
   while (pos >= 0) {
     const { args, end } = readArgs(src, pos + '\\expEntry'.length, 4);
-    const [period, title, company, items] = args;
+    const [period, title, rawCompany, items] = args;
+    // "<company> \textbullet\ \href{url}{label}": keep the link separate instead of gluing its text onto the company.
+    const [companyPart, linkPart] = rawCompany.split(/\\textbullet\b/, 2);
+    const href = linkPart?.match(/\\href\{(https?:\/\/[^}]+)\}\{([^}]*)\}/);
     out.push({
       period: unescapeLatex(period),
       title: unescapeLatex(title),
-      company: unescapeLatex(company),
+      company: unescapeLatex(linkPart === undefined ? rawCompany : companyPart),
       bullets: items.split('\\item').map(unescapeLatex).filter(Boolean),
+      ...(href ? { link: { href: href[1].trim().replace(/\\([#%&_$])/g, '$1'), label: unescapeLatex(href[2]) } } : {}),
     });
     pos = src.indexOf('\\expEntry', end);
   }

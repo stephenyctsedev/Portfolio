@@ -27,6 +27,13 @@ publish `resume-<branch>.pdf` to the `preview` branch, then:
 
 This rewrites `src/data/resume.json` and `public/resume/resume-main.pdf`.
 
+The homepage and the PDF are generated from the same Resume commit, so never
+hand-edit `resume.json`: change the Resume repo, let its CI refresh `preview`,
+sync, and commit both files together. Experience entries whose company line is
+`<company> \textbullet\ \href{url}{label}` get a `link` shown next to the company.
+From a git worktree the default `../Resume` points at the wrong place; pass
+`--repo <path-to-Resume>`.
+
 **Note:** The downloadable PDF always includes the phone number — it is the
 actual resume document as used in employer submissions. The `--include-phone`
 flag only affects the generated site content (`resume.json` / homepage).
