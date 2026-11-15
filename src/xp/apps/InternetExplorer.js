@@ -15,6 +15,33 @@ function nextVisitorNumber(storage) {
   return 1337 + count;
 }
 
+/**
+ * Smooth-scroll a section of the homepage document into view.
+ * @returns {boolean} whether a matching element was found
+ */
+export function scrollToAnchor(doc, id) {
+  const target = id ? doc.getElementById(id) : null;
+  if (!target) return false;
+  target.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
+  return true;
+}
+
+/**
+ * Click handler for the homepage that lives inside the IE <iframe srcdoc>.
+ * Every link is handled here and the browser's default navigation is always cancelled:
+ * an about:srcdoc document resolves "#about" against the PARENT page's URL, so letting the
+ * default run navigates the iframe to the whole app (a nested 3D room) instead of scrolling.
+ */
+export function handleHomepageClick(e, { registry, openExternal, onAnchor }) {
+  const a = e.target.closest('a');
+  if (!a) return;
+  e.preventDefault();
+  if (a.dataset.app) { registry.launch(a.dataset.app, a.dataset.path ? { path: a.dataset.path } : undefined); return; }
+  const href = a.getAttribute('href') ?? '';
+  if (href.startsWith('#')) { onAnchor(href.slice(1)); return; }
+  openExternal(href);
+}
+
 export function openInternetExplorer(ctx) {
   const { wm, dialogs, menus, registry, resume, pdfHref, repoUrl, storage, openExternal } = ctx;
   const body = document.createElement('div');
@@ -38,7 +65,8 @@ export function openInternetExplorer(ctx) {
     <div class="status-bar xp-ie-status"><p class="status-bar-field xp-ie-status-main">Done</p><p class="status-bar-field">Internet</p></div>`;
   for (const holder of body.querySelectorAll('.xp-tb-ico')) holder.append(iconEl(holder.dataset.icon, 16));
   body.querySelector('.xp-ie-url-ico').append(iconEl('ie', 16));
-  body.querySelector('.xp-ie-url input').value = HOME_URL;
+  const addressInput = body.querySelector('.xp-ie-url input');
+  addressInput.value = HOME_URL;
   const iframe = body.querySelector('iframe');
   const status = body.querySelector('.xp-ie-status-main');
 
@@ -64,24 +92,18 @@ export function openInternetExplorer(ctx) {
 
   function load() {
     status.textContent = 'Opening page...';
+    addressInput.value = HOME_URL;
     iframe.srcdoc = renderHomepage(resume, { pdfHref, repoUrl, visitors: nextVisitorNumber(storage) });
   }
   iframe.addEventListener('load', () => {
     status.textContent = 'Done';
     const doc = iframe.contentDocument;
     if (!doc) return;
-    doc.addEventListener('click', (e) => {
-      const a = e.target.closest('a');
-      if (!a) return;
-      // data-app links win regardless of href: the Projects/Portfolio links use a bare
-      // "#projects" href (no real target to jump to), which would otherwise hit the
-      // in-page-anchor early return below and navigate the iframe to the live app itself.
-      if (a.dataset.app) { e.preventDefault(); registry.launch(a.dataset.app, a.dataset.path ? { path: a.dataset.path } : undefined); return; }
-      const href = a.getAttribute('href') ?? '';
-      if (href.startsWith('#')) return;
-      e.preventDefault();
-      openExternal(href);
-    });
+    doc.addEventListener('click', (e) => handleHomepageClick(e, {
+      registry,
+      openExternal,
+      onAnchor: (id) => { if (scrollToAnchor(doc, id)) addressInput.value = `${HOME_URL}#${id}`; },
+    }));
   });
   body.addEventListener('click', (e) => {
     const cmd = e.target.closest('[data-cmd]')?.dataset.cmd;
