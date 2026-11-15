@@ -76,6 +76,10 @@ export function createWindowManager(layerEl, { deskW = DESKTOP_WIDTH, deskH = DE
       px = 60 + cascade * cascadeStep;
       py = 40 + cascade * cascadeStep;
       cascade = (cascade + 1) % 8;
+      // A freshly cascaded window must fit inside the desktop area (above the taskbar); only the
+      // user may drag one partly off-screen. Tall windows such as Adobe Reader lose their bottom otherwise.
+      px = Math.max(0, Math.min(px, deskW - w));
+      py = Math.max(0, Math.min(py, deskH - h));
     }
     ({ x: px, y: py } = clampPosition(px, py, w, h, deskW, deskH));
 

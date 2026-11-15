@@ -37,6 +37,26 @@ describe('createWindowManager', () => {
     expect(wm.focused).toBe(a);
   });
 
+  // Regression: clampPosition only guarantees 40px stay on screen, so a tall window (Adobe Reader is 640px)
+  // opened as the 4th+ cascaded window had its bottom, including the PDF's last rows, hidden under the taskbar.
+  it('places cascaded windows fully inside the desktop area, however many are open', () => {
+    const deskH = 768 - 30;
+    for (let i = 0; i < 10; i++) {
+      const win = wm.open({ appId: `tall${i}`, title: `T${i}`, width: 760, height: 640 });
+      expect(win.bounds.y + win.bounds.h, `window ${i} bottom`).toBeLessThanOrEqual(deskH);
+      expect(win.bounds.x + win.bounds.w, `window ${i} right`).toBeLessThanOrEqual(1024);
+      expect(win.bounds.y).toBeGreaterThanOrEqual(0);
+    }
+  });
+  it('starts a window taller than the desktop at the top instead of off-screen', () => {
+    const win = wm.open({ appId: 'huge', title: 'Huge', width: 400, height: 900 });
+    expect(win.bounds.y).toBe(0);
+  });
+  it('honours an explicit position instead of re-fitting it', () => {
+    const win = wm.open({ appId: 'pinned', title: 'Pinned', width: 300, height: 300, x: 100, y: 600 });
+    expect(win.bounds).toMatchObject({ x: 100, y: 600 });
+  });
+
   it('minimizes, restores and refocuses', () => {
     const a = wm.open({ appId: 'a', title: 'A' });
     const b = wm.open({ appId: 'b', title: 'B' });

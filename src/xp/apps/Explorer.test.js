@@ -53,6 +53,39 @@ describe('explorer', () => {
     expect(address(win)).toBe('My Computer');
   });
 
+  const groupTitles = (win) => [...win.el.querySelectorAll('.xp-taskpane-title')].map((t) => t.textContent);
+  const otherPlaces = (win) => {
+    const group = [...win.el.querySelectorAll('.xp-taskpane-group')].find((g) => g.querySelector('.xp-taskpane-title').textContent === 'Other Places');
+    return [...group.querySelectorAll('a')].map((a) => a.textContent);
+  };
+  const placeField = (win) => win.el.querySelector('.xp-explorer-place').textContent;
+
+  it('Other Places never lists the open folder and never lists a place twice', () => {
+    const pictures = openExplorer(ctx, PICTURES);
+    expect(otherPlaces(pictures)).toEqual(['My Documents', 'My Computer']);
+    const documents = openExplorer(ctx, PATHS.myDocuments);
+    expect(otherPlaces(documents)).not.toContain('My Documents');
+    expect(otherPlaces(documents)).toContain('My Computer');
+    const project = openExplorer(ctx, PROJECT);
+    expect(otherPlaces(project)).toEqual(['My Pictures', 'My Documents', 'My Computer']);
+    for (const win of [pictures, documents, project]) expect(new Set(otherPlaces(win)).size).toBe(otherPlaces(win).length);
+  });
+
+  it('the status bar names the folder that is open, not always My Computer', () => {
+    expect(placeField(openExplorer(ctx, PATHS.myComputer))).toBe('My Computer');
+    expect(placeField(openExplorer(ctx, PICTURES))).toBe('My Pictures');
+    expect(placeField(openExplorer(ctx, PROJECT))).toBe('Dior Lip Glow');
+    expect(placeField(openExplorer(ctx, PATHS.recycleBin))).toBe('Recycle Bin');
+  });
+
+  it('puts a project\'s Details first so its description is on screen without scrolling', () => {
+    const project = openExplorer(ctx, PROJECT);
+    expect(groupTitles(project)).toEqual(['Details', 'File and Folder Tasks', 'Other Places']);
+    project.el.querySelector('[data-name="img1.jpg"]').click();
+    expect(groupTitles(project)).toEqual(['Details', 'Selected Item', 'File and Folder Tasks', 'Other Places']);
+    expect(groupTitles(openExplorer(ctx, PATHS.myDocuments))).toEqual(['File and Folder Tasks', 'Other Places', 'Details']);
+  });
+
   it('reports each folder navigated into, but not the initial open or back/forward', () => {
     const track = vi.fn();
     ctx.track = track;

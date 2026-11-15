@@ -150,11 +150,18 @@ export function openExplorer(ctx, startPath = PATHS.myComputer) {
       const tasks = [link('Make a new folder', 'unavailable'), link('Publish this folder to the Web', 'unavailable'), link('Share this folder', 'unavailable')];
       if (node.project) tasks.unshift(link('View as a slide show', `slideshow:${node.project.slug}`));
       groups.push(['File and Folder Tasks', tasks]);
-      groups.push(['Other Places', [link(parentLabel, `nav:${parent}`), link('My Documents', `nav:${PATHS.myDocuments}`), link('My Computer', `nav:${PATHS.myComputer}`)]]);
+      // Never offer the folder that is already open, and never the same destination twice
+      // (the parent of My Pictures is My Documents, which is also a fixed entry).
+      const places = [[parentLabel, parent], ['My Documents', PATHS.myDocuments], ['My Computer', PATHS.myComputer]]
+        .filter(([, target], i, all) => target !== node.path && all.findIndex(([, t]) => t === target) === i);
+      groups.push(['Other Places', places.map(([label, target]) => link(label, `nav:${target}`))]);
     }
-    groups.push(['Details', detailsLines(node)]);
-    if (selected?.mediaKind || linkTarget(selected)) groups.push(['Selected Item', selectedItemLines(selected)]);
-    taskpane.innerHTML = groups.map(([title, lines]) =>
+    // A project's description is what visitors came for and is long, so it leads the pane instead of
+    // sitting below the task groups where the pane's bottom edge cuts it off mid-sentence.
+    const info = [['Details', detailsLines(node)]];
+    if (selected?.mediaKind || linkTarget(selected)) info.push(['Selected Item', selectedItemLines(selected)]);
+    const ordered = node.project ? [...info, ...groups] : [...groups, ...info];
+    taskpane.innerHTML = ordered.map(([title, lines]) =>
       `<div class="xp-taskpane-group"><div class="xp-taskpane-title">${title}</div><div class="xp-taskpane-body">${lines.map((l) => `<div>${l}</div>`).join('')}</div></div>`).join('');
   }
 
@@ -164,7 +171,7 @@ export function openExplorer(ctx, startPath = PATHS.myComputer) {
     address.value = node.path;
     addressIcon.replaceChildren(iconEl(node.icon, 16));
     win.setTitle(node.name);
-    place.textContent = node.path.startsWith(PATHS.recycleBin) ? 'Recycle Bin' : 'My Computer';
+    place.textContent = node.name;
     items.className = `xp-explorer-items xp-view-${view}`;
     items.innerHTML = view === 'details'
       ? '<div class="xp-item xp-item-header"><span class="xp-ico" style="width:16px;height:16px"></span><span class="xp-item-label">Name</span><span class="xp-item-type">Type</span></div>'

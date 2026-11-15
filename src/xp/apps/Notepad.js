@@ -8,11 +8,11 @@ export function openNotepad(ctx, { title = 'Untitled', text = '' } = {}) {
   const { wm, dialogs, menus } = ctx;
   const body = document.createElement('div');
   body.className = 'xp-notepad';
-  body.innerHTML = '<div class="xp-notepad-menubar"></div><textarea spellcheck="false" wrap="off"></textarea>';
+  body.innerHTML = '<div class="xp-notepad-menubar"></div><textarea spellcheck="false" wrap="soft"></textarea>';
   const textarea = body.querySelector('textarea');
   textarea.value = text;
   let dirty = false;
-  let wordWrap = false;
+  let wordWrap = true; // on by default: the project files are long paragraphs and sideways scrolling hides them
   textarea.addEventListener('input', () => { dirty = true; });
 
   const win = wm.open({ appId: 'notepad', title: `${title} - Notepad`, icon: 'notepad', width: 560, height: 420, minWidth: 300, minHeight: 200, content: body });
