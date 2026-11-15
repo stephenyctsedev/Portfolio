@@ -1,5 +1,21 @@
 import { describe, it, expect } from 'vitest';
-import { pickMode } from './modes.js';
+import { pickMode, wantsResume } from './modes.js';
+
+describe('wantsResume', () => {
+  it('is true for ?open=resume', () => {
+    expect(wantsResume('?mode=flat&open=resume')).toBe(true);
+  });
+  it('still is true when other params such as utm tags are present', () => {
+    expect(wantsResume('?mode=flat&open=resume&utm_source=linkedin')).toBe(true);
+  });
+  it('is false without the flag', () => {
+    expect(wantsResume('?mode=flat')).toBe(false);
+    expect(wantsResume('')).toBe(false);
+  });
+  it('is false for any other open value', () => {
+    expect(wantsResume('?open=other')).toBe(false);
+  });
+});
 
 describe('pickMode', () => {
   const desktop = { query: '', hasWebGL2: true, coarsePointer: false, viewportWidth: 1440 };

@@ -16,6 +16,24 @@ describe('boot sequence', () => {
   });
   afterEach(() => vi.useRealTimers());
 
+  it('fast power-on skips bios, logo and welcome and goes straight to on', async () => {
+    await boot.powerOn({ fast: true });
+    expect(boot.state).toBe('on');
+    expect(states).toEqual(['booting', 'on']);
+    expect(played).toEqual(['startup']);
+    expect(layer().hidden).toBe(true);
+  });
+
+  it('fast power-on is a no-op when the pc is not off', async () => {
+    const normal = boot.powerOn();
+    expect(boot.state).toBe('booting');
+    await boot.powerOn({ fast: true });
+    expect(states).toEqual(['booting']);
+    expect(played).toEqual([]);
+    for (let i = 0; i < 3; i++) { layer().click(); await vi.advanceTimersByTimeAsync(0); }
+    await normal;
+  });
+
   it('shows the four-colour flag beside the Windows XP wordmark on the logo screen', () => {
     const logo = layer().querySelector('.xp-bootlogo');
     expect(logo.querySelectorAll('.xp-flag svg.xp-winflag .xp-winflag-pane')).toHaveLength(4);

@@ -24,6 +24,17 @@ describe('createDesktop', () => {
     expect(desktop.el.querySelector('.xp-balloon').hidden).toBe(false);
   });
 
+  it('fast power-on reaches on without the welcome balloon', async () => {
+    const desktop = mount();
+    const booted = [];
+    desktop.on('booted', () => booted.push(1));
+    await desktop.powerOn({ fast: true });
+    await vi.advanceTimersByTimeAsync(1500);
+    expect(desktop.powerState).toBe('on');
+    expect(booted).toEqual([1]);
+    expect(desktop.el.querySelector('.xp-balloon').hidden).toBe(true);
+  });
+
   it('launches apps from icons and the Start menu', () => {
     const desktop = mount();
     desktop.el.querySelector('[data-id="iexplore"]').dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));

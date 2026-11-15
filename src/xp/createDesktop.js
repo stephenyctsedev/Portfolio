@@ -151,16 +151,17 @@ export function createDesktop(rootEl, { resume, portfolio, pdfHref, mediaBase = 
   rootEl.querySelector('.xp-startmenu-root').addEventListener('startmenu:toggle', (e) => taskbar.setStartActive(e.detail));
 
   let firstBoot = true;
-  function onBooted() {
+  function onBooted({ welcome = true } = {}) {
     emit('booted');
     if (!firstBoot) return;
     firstBoot = false;
+    if (!welcome) return;
     setTimeout(() => taskbar.showBalloon({ title: 'Welcome!', text: 'Open Internet Explorer for my resume, or My Pictures for my project screenshots.', onClick: launch('iexplore') }), 1200);
   }
-  async function powerOn() {
+  async function powerOn({ fast = false } = {}) {
     if (boot.state !== 'off') return;
-    await boot.powerOn();
-    onBooted();
+    await boot.powerOn({ fast });
+    onBooted({ welcome: !fast });
   }
   async function powerOff() {
     wm.closeAll();

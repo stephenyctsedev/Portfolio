@@ -70,10 +70,11 @@ export function createBoot(screenEl, { sounds, reducedMotion = false, onState, o
     resolveLogon = null;
   });
 
-  async function powerOn() {
+  async function powerOn({ fast = false } = {}) {
     if (state !== 'off') return;
     setState('booting');
     sounds?.unlock();
+    if (fast) { finishBoot(); return; }
     await phase('bios', async () => {
       panes.bios.textContent = '';
       for (const line of BIOS_LINES) { panes.bios.textContent += `${line}\n`; await wait(160); }

@@ -11,7 +11,7 @@ Pinball. Live at https://stephenyctsedev.github.io/Portfolio/
     npm run dev          # http://localhost:5173/Portfolio/
     npm run dev -- --open
 
-Add `?mode=flat` to skip the 3D room, `?mode=room` to force it.
+Add `?mode=flat` to skip the 3D room, `?mode=room` to force it. Use `?mode=flat&open=resume` to skip the room, skip the boot sequence and land on the résumé (Internet Explorer already open on the homepage) — handy to share with recruiters.
 
 ## Test
 
@@ -61,6 +61,7 @@ The Measurement ID is `GA_MEASUREMENT_ID` in `src/analytics.js`. Events:
 - `app_open` `{app_id, path?, slug?}`: an app was launched, or an Explorer window navigated into a folder (path = that folder, slug = portfolio project in the picture viewer). The `error`, `run` and `external` ids are dialogs/helpers; ignore them when counting real app opens.
 - `external_link` `{host}`: an outbound link was opened (host only; `mailto` links report `mailto`).
 - `site_mode` `{mode}`: `room` or `flat`, once per load.
+- `skip_room` (no parameters): the room's "Skip the room — View résumé" link was clicked; the page then reloads as `?mode=flat&open=resume`. Clicks made before gtag.js has finished loading can be lost on navigation.
 
 No personal data or free text is sent, and there is no cookie banner. To check it, open the live
 site and watch GA4 > Reports > Realtime.
@@ -80,6 +81,7 @@ to the live property.
 - 3D room: drag to orbit, wheel to zoom, click the PC to sit down at it, Escape or "Back to room" to stand up.
 - "Low FX" (bottom right) turns bloom off and caps resolution for slower machines; the choice is remembered.
 - Phones, tablets and browsers without WebGL2 skip the room and get the desktop full screen. Force a mode with `?mode=room` or `?mode=flat`.
+- The room's first screen has a "Skip the room — View résumé →" link (top left). It goes to `?mode=flat&open=resume`; it is hidden while the monitor is focused.
 - Minesweeper: left click reveals, right click flags (then ?), middle click or Shift+click chords, F2 new game. Best times are stored in the browser.
 - Solitaire: drag runs, double-click sends a card to its foundation, click the stock to draw, F2 deals, Ctrl+Z undoes one move. Options and card back are remembered.
 - Pinball: Z and / flippers, hold Space to launch, X and . nudge (three quick nudges tilt), F2 new game, F3 pause. High score is stored in the browser.

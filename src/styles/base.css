@@ -8,3 +8,9 @@ html, body { margin: 0; height: 100%; background: #000; color: #ddd; font-family
    landing most of the scaled screen off to one side instead of centered. */
 .flat-stage { position: absolute; inset: 0; display: grid; grid-template-columns: 100%; grid-template-rows: 100%; place-items: center; background: #000; }
 .flat-notice { position: absolute; left: 0; right: 0; bottom: 6px; text-align: center; font-size: 12px; color: #777; }
+/* "Skip the room" link: z-index 20 sits above .room-loading (z-index 10, room.css) so it is usable
+   while the black BIOS overlay is still up. Values mirror .room-btn, which is lazy-loaded with the room. */
+.skip-room { position: absolute; top: 12px; left: 16px; z-index: 20; padding: 6px 12px; border: 1px solid rgba(62,233,255,.5); border-radius: 4px; background: rgba(10,8,30,.75); color: #cfe6ff; font: 13px Tahoma, Verdana, sans-serif; text-decoration: none; }
+.skip-room:hover { border-color: #3ee9ff; box-shadow: 0 0 12px rgba(62,233,255,.5); }
+.skip-room:focus-visible { outline: 2px solid #3ee9ff; outline-offset: 2px; }
+.skip-room[hidden] { display: none; }

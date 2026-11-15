@@ -10,6 +10,11 @@ export function pickMode({ query = '', hasWebGL2 = true, coarsePointer = false, 
   return 'room';
 }
 
+/** True when the URL asks to open the résumé straight away (`?open=resume`). */
+export function wantsResume(query = '') {
+  return new URLSearchParams(query).get('open') === 'resume';
+}
+
 /** Read the real browser environment (not unit tested). */
 export function detectEnv() {
   let hasWebGL2 = false;

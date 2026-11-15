@@ -1,5 +1,6 @@
 import './styles/base.css';
-import { pickMode, detectEnv } from './modes.js';
+import { pickMode, detectEnv, wantsResume } from './modes.js';
+import { createSkipLink, hideWhileScreenFocused } from './skipRoom.js';
 import { createDesktop } from './xp/createDesktop.js';
 import resume from './data/resume.json';
 import portfolio from './data/portfolio.json';
@@ -11,6 +12,7 @@ const mediaBase = import.meta.env.BASE_URL;
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const app = document.querySelector('#app');
 const mode = pickMode(detectEnv());
+const openResume = wantsResume(location.search);
 
 initAnalytics();
 const screenEl = document.createElement('div');
@@ -19,8 +21,12 @@ const desktop = createDesktop(screenEl, { resume, portfolio, pdfHref, mediaBase,
 (async () => {
   if (mode === 'room') {
     try {
+      // Created before the room's dynamic import so it is usable while the room is still loading.
+      // It lives in #app, outside the room's own DOM; the fallback's replaceChildren() below removes it.
+      const skipLink = createSkipLink(app, { track });
       const { mountRoom } = await import('./room/mount.js');
-      await mountRoom(app, screenEl, desktop, { reducedMotion });
+      const room = await mountRoom(app, screenEl, desktop, { reducedMotion });
+      hideWhileScreenFocused(skipLink, room);
       track('site_mode', { mode: 'room' });
       return;
     } catch (err) {
@@ -28,7 +34,7 @@ const desktop = createDesktop(screenEl, { resume, portfolio, pdfHref, mediaBase,
       app.replaceChildren();
     }
   }
-  mountFlat(app, screenEl, desktop, mode === 'flat');
+  mountFlat(app, screenEl, desktop, mode === 'flat' && !openResume);
   track('site_mode', { mode: 'flat' });
 })();
 
@@ -51,5 +57,6 @@ function mountFlat(root, screen, desk, showNotice) {
   fit();
   addEventListener('resize', fit);
   desk.setInteractive(true);
-  desk.powerOn();
+  // ?open=resume: skip the boot sequence and show the homepage in Internet Explorer straight away.
+  desk.powerOn({ fast: openResume }).then(() => { if (openResume) desk.ctx.registry.launch('iexplore'); });
 }
