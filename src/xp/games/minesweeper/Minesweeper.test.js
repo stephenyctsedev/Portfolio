@@ -35,6 +35,14 @@ describe('Minesweeper window', () => {
     expect(ctx.wm.windows).toHaveLength(1);
   });
 
+  // Regression: the beginner board is only 174px wide, which left ~71px for the title between the icon and the
+  // buttons, so "Minesweeper" (~104px of text) was cut to "Mineswe". The title bar needs about 207px.
+  it('never makes the window narrower than its title bar needs', () => {
+    const win = openMinesweeper(ctx);
+    expect(win.bounds.w).toBeGreaterThanOrEqual(210);
+    expect(win.bounds.w).toBeGreaterThan(9 * 16 + 30); // still at least the board plus its frame
+  });
+
   it('flags on right click, reveals on left click, and runs the timer', () => {
     const win = openMinesweeper(ctx);
     const cell0 = win.el.querySelector('.ms-cell[data-i="0"]');

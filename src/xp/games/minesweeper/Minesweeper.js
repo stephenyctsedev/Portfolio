@@ -7,6 +7,9 @@ const BEST_KEY = 'xpcomputer.winmine.best';
 const CELL = 16;
 const FRAME_W = 30;   // window chrome + panel borders; tune until no gap or scrollbar shows
 const FRAME_H = 112;
+// The title bar needs ~207px for the icon, "Minesweeper" and the three buttons. The beginner board alone is 174px,
+// which cut the title to "Mineswe"; the panel is centred in the wider window.
+const MIN_WINDOW_WIDTH = 212;
 const NUMBER_COLORS = ['', '#0000ff', '#008000', '#ff0000', '#000080', '#800000', '#008080', '#000000', '#808080'];
 const FACES = {
   smile: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ffd93b" stroke="#000"/><circle cx="8.5" cy="9" r="1.4"/><circle cx="15.5" cy="9" r="1.4"/><path d="M7 14c2 3 8 3 10 0" fill="none" stroke="#000" stroke-width="1.5"/></svg>',
@@ -81,7 +84,7 @@ export function openMinesweeper(ctx) {
       cell.tabIndex = -1; // mouse-only, as the original was; keep up to 480 unlabeled cells out of tab order
       grid.append(cell);
     }
-    win.resize(level.cols * CELL + FRAME_W, level.rows * CELL + FRAME_H);
+    win.resize(Math.max(level.cols * CELL + FRAME_W, MIN_WINDOW_WIDTH), level.rows * CELL + FRAME_H);
   }
 
   function renderCell(i) {

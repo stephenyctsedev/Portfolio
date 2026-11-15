@@ -73,6 +73,18 @@ export function makeGridTexture() {
   });
 }
 
+/**
+ * Largest font size (<= maxSize, >= minSize) at which the widest line still fits maxWidth.
+ * `measure(size, text)` returns a width in px; a missing or non-numeric width counts as "fits".
+ */
+export function fitFontSize(measure, lines, { maxSize, maxWidth, minSize = 8 }) {
+  for (let size = maxSize; size > minSize; size--) {
+    const widest = Math.max(...lines.map((line) => measure(size, line)));
+    if (!(widest > maxWidth)) return size;
+  }
+  return minSize;
+}
+
 /** Neon poster with centered lines of text. */
 export function makePosterTexture(lines, { bg = '#12081f', fg = '#ff2bd6', accent = '#3ee9ff' } = {}) {
   return canvasTexture(256, 358, (ctx, w, h) => {
@@ -86,13 +98,23 @@ export function makePosterTexture(lines, { bg = '#12081f', fg = '#ff2bd6', accen
     ctx.textBaseline = 'middle';
     ctx.shadowColor = fg;
     ctx.shadowBlur = 16;
-    const size = Math.min(46, Math.floor((h - 80) / lines.length / 1.2));
-    ctx.font = `bold ${size}px Impact, "Arial Black", sans-serif`;
+    const fontFor = (px) => `bold ${px}px Impact, "Arial Black", sans-serif`;
+    // Height alone is not enough: without Impact the fallback font is wider, and "PROGRAMMER" overran the frame.
+    const size = fitFontSize((px, text) => { ctx.font = fontFor(px); return ctx.measureText(text)?.width; }, lines, {
+      maxSize: Math.min(46, Math.floor((h - 80) / lines.length / 1.2)),
+      maxWidth: w - 60, // frame (10px + 6px stroke) plus breathing room on both sides
+    });
+    ctx.font = fontFor(size);
     lines.forEach((line, i) => ctx.fillText(line, w / 2, h / 2 + (i - (lines.length - 1) / 2) * size * 1.25));
     ctx.shadowBlur = 0;
+    // The site's real address (it was published as /XPcomputer before moving to /Portfolio). At a fixed 13px monospace a
+    // line this long is ~270px wide on a 256px poster and runs past the frame, hence the fitting below.
+    const footer = 'stephenyctsedev.github.io/Portfolio';
+    const footerFont = (px) => `${px}px monospace`;
+    const footerSize = fitFontSize((px, text) => { ctx.font = footerFont(px); return ctx.measureText(text)?.width; }, [footer], { maxSize: 13, maxWidth: w - 40, minSize: 7 });
     ctx.fillStyle = accent;
-    ctx.font = '13px monospace';
-    ctx.fillText('stephenyctsedev.github.io/XPcomputer', w / 2, h - 28);
+    ctx.font = footerFont(footerSize);
+    ctx.fillText(footer, w / 2, h - 28);
   });
 }
 

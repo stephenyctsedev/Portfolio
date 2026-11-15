@@ -128,9 +128,11 @@
 .xp-start:hover, .xp-start.active { background: linear-gradient(#57b857, #3d9b3d 60%, #2f7d2f); }
 .xp-start-flag { display: inline-block; line-height: 0; filter: drop-shadow(1px 1px 1px rgba(0,0,0,.5)); }
 .xp-tasks { flex: 1; display: flex; align-items: center; gap: 3px; padding: 0 6px; overflow: hidden; }
-.xp-task { display: flex; align-items: center; gap: 6px; height: 22px; width: 160px; padding: 0 8px; border: 1px solid #1a3f9e; border-radius: 3px; background: linear-gradient(#4b8ef0, #3a7ae0); color: #fff; font: inherit; box-shadow: inset 1px 1px 0 rgba(255,255,255,.3); min-width: 0; min-height: 0; cursor: default; }
+.xp-task { display: flex; align-items: center; gap: 6px; height: 22px; flex: 0 1 300px; padding: 0 8px; border: 1px solid #1a3f9e; border-radius: 3px; background: linear-gradient(#4b8ef0, #3a7ae0); color: #fff; font: inherit; box-shadow: inset 1px 1px 0 rgba(255,255,255,.3); min-width: 0; min-height: 0; cursor: default; }
 .xp-task-label { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.xp-task.active { background: linear-gradient(#1e50b8, #245edb); box-shadow: inset 1px 1px 3px rgba(0,0,0,.5); font-weight: bold; }
+/* Three classes on purpose: XP.css's `button.active:not(:disabled)` (pale "pressed" gradient) outranks a plain
+   `.xp-task.active`, which left the focused window's button pale with white, unreadable text. */
+.xp-taskbar .xp-task.active { background: linear-gradient(#1e50b8, #245edb); box-shadow: inset 1px 1px 3px rgba(0,0,0,.5); font-weight: bold; }
 .xp-task.minimized { font-weight: normal; opacity: .9; }
 .xp-tray { display: flex; align-items: center; gap: 8px; padding: 0 12px 0 10px; background: linear-gradient(#1290e9, #0d7fd6 60%, #0a6fc4); border-left: 1px solid #0a4fa5; box-shadow: inset 2px 0 3px rgba(0,0,0,.25); }
 .xp-tray-mute { border: 0; background: none; box-shadow: none; min-width: 0; min-height: 0; padding: 2px; cursor: default; }

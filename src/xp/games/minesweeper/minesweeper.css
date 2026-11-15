@@ -1,4 +1,6 @@
-.ms { display: inline-flex; flex-direction: column; background: #c0c0c0; user-select: none; -webkit-user-select: none; }
+/* Fills the window and centres the board: the window can be wider than the beginner board (see MIN_WINDOW_WIDTH). */
+.ms { display: flex; flex: 1; flex-direction: column; align-items: center; background: #c0c0c0; user-select: none; -webkit-user-select: none; }
+.ms-menubar { align-self: stretch; }
 .ms-panel { padding: 6px; border: 3px solid; border-color: #fff #808080 #808080 #fff; }
 .ms-status { display: flex; justify-content: space-between; align-items: center; padding: 4px 5px; margin-bottom: 6px; border: 2px solid; border-color: #808080 #fff #fff #808080; }
 .ms-led { font: bold 20px/22px "Courier New", monospace; color: #f00; background: #000; padding: 0 2px; letter-spacing: 1px; border: 1px solid; border-color: #808080 #fff #fff #808080; min-width: 39px; text-align: center; }

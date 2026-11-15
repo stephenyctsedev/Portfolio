@@ -41,7 +41,7 @@ const desktop = createDesktop(screenEl, { resume, portfolio, pdfHref, mediaBase,
 /** Center and scale the 1024x768 screen to the viewport; interactive immediately; boots on load. */
 function mountFlat(root, screen, desk, showNotice) {
   const stage = document.createElement('div');
-  stage.className = 'flat-stage';
+  stage.className = showNotice ? 'flat-stage has-notice' : 'flat-stage';
   stage.append(screen);
   root.append(stage);
   if (showNotice) {

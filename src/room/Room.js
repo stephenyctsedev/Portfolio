@@ -126,7 +126,9 @@ export function buildRoom(scene, textures = {}) {
   posterA.position.set(0.35, 1.75, -1.985);
   const posterB = plane(0.5, 0.7, textures.posterB ? new THREE.MeshBasicMaterial({ map: textures.posterB }) : std({ color: 0x1a2a33 }), 'posterB');
   posterB.rotation.y = Math.PI / 2;
-  posterB.position.set(-1.985, 1.7, -1.2);
+  // Kept towards the back corner: closer to the shelf (z -1.0 .. 0.2) its boards and books hide half of the text
+  // from the default camera, which looks across the room from the front right.
+  posterB.position.set(-1.985, 1.7, -1.55);
   group.add(posterA, posterB);
 
   // ---- lights ----

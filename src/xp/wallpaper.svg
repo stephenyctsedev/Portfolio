@@ -1,17 +1,64 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 768" preserveAspectRatio="xMidYMid slice">
+  <!-- A vector take on the green-hill-and-clouds XP wallpaper: layered gradients, softened clouds, a lit ridge and shaded
+       slope, so it stays smooth at any scale (the desktop is shown up to ~1.4x on a 1080p screen). -->
   <defs>
     <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#2a63c9"/><stop offset="0.6" stop-color="#7fb6ef"/><stop offset="1" stop-color="#cfe6fb"/>
+      <stop offset="0" stop-color="#1a4eb2"/><stop offset="0.3" stop-color="#2f78dc"/><stop offset="0.55" stop-color="#6aaaec"/>
+      <stop offset="0.72" stop-color="#a9d3f6"/><stop offset="1" stop-color="#dcefff"/>
     </linearGradient>
-    <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#8fd14f"/><stop offset="1" stop-color="#3f8f1f"/>
+    <radialGradient id="glow" cx="0.32" cy="0.6" r="0.6">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="far" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8dc27a"/><stop offset="1" stop-color="#5e9d49"/>
     </linearGradient>
+    <linearGradient id="hill" x1="0.05" y1="0" x2="0.75" y2="1">
+      <stop offset="0" stop-color="#c9ef6f"/><stop offset="0.2" stop-color="#93d541"/><stop offset="0.55" stop-color="#4f9f1f"/><stop offset="1" stop-color="#2a6a10"/>
+    </linearGradient>
+    <linearGradient id="front" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#43901e"/><stop offset="1" stop-color="#1f5b0e"/>
+    </linearGradient>
+    <filter id="blurL" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="12"/></filter>
+    <filter id="blurM" x="-20%" y="-40%" width="140%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+    <filter id="blurS" x="-10%" y="-20%" width="120%" height="140%"><feGaussianBlur stdDeviation="1.8"/></filter>
+    <filter id="grass" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02 0.4" numOctaves="2" seed="7" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0.18  0 0 0 0 0.42  0 0 0 0 0.08  0 0 0 0.9 -0.28"/>
+    </filter>
+    <path id="hillShape" d="M0 545 C 220 400, 520 405, 760 470 C 880 503, 960 482, 1024 448 L1024 768 L0 768 Z"/>
+    <clipPath id="hillClip"><use href="#hillShape"/></clipPath>
   </defs>
+
   <rect width="1024" height="768" fill="url(#sky)"/>
-  <g fill="#fff" opacity="0.85">
-    <ellipse cx="220" cy="150" rx="90" ry="30"/><ellipse cx="270" cy="130" rx="60" ry="28"/>
-    <ellipse cx="760" cy="200" rx="110" ry="32"/><ellipse cx="820" cy="180" rx="70" ry="30"/>
+  <rect width="1024" height="768" fill="url(#glow)"/>
+
+  <!-- clouds: a cool shaded underside, then bright puffs on top -->
+  <g filter="url(#blurM)" fill="#9dc2ea" opacity="0.55">
+    <ellipse cx="250" cy="178" rx="120" ry="22"/><ellipse cx="800" cy="238" rx="150" ry="26"/>
   </g>
-  <path d="M0 520 C 200 420, 380 470, 560 430 C 740 390, 900 460, 1024 400 L 1024 768 L 0 768 Z" fill="url(#hill)"/>
-  <path d="M0 620 C 250 560, 520 640, 1024 560 L 1024 768 L 0 768 Z" fill="#3a8a1e" opacity="0.9"/>
+  <g filter="url(#blurS)" fill="#fff" opacity="0.95">
+    <ellipse cx="190" cy="160" rx="70" ry="26"/><ellipse cx="250" cy="138" rx="62" ry="32"/><ellipse cx="310" cy="156" rx="68" ry="26"/>
+    <ellipse cx="240" cy="166" rx="110" ry="20"/>
+    <ellipse cx="720" cy="222" rx="80" ry="28"/><ellipse cx="790" cy="196" rx="74" ry="36"/><ellipse cx="860" cy="218" rx="78" ry="28"/>
+    <ellipse cx="800" cy="226" rx="130" ry="22"/>
+  </g>
+  <g filter="url(#blurM)" fill="#fff" opacity="0.7">
+    <ellipse cx="520" cy="96" rx="90" ry="12"/><ellipse cx="610" cy="84" rx="60" ry="9"/>
+    <ellipse cx="930" cy="344" rx="120" ry="10"/><ellipse cx="90" cy="360" rx="100" ry="9"/>
+  </g>
+
+  <!-- distant hill, hazy -->
+  <path d="M0 468 C 170 430, 340 456, 530 424 C 730 392, 890 438, 1024 408 L1024 768 L0 768 Z" fill="url(#far)" filter="url(#blurS)"/>
+
+  <!-- main hill -->
+  <use href="#hillShape" fill="url(#hill)"/>
+  <g clip-path="url(#hillClip)">
+    <rect y="380" width="1024" height="388" filter="url(#grass)" opacity="0.6"/>
+    <path d="M0 556 C 220 410, 520 414, 760 482 C 880 515, 960 494, 1024 460 L1024 520 C 960 556, 880 572, 760 536 C 520 468, 220 476, 0 610 Z" fill="#e6fba0" opacity="0.5" filter="url(#blurM)"/>
+    <ellipse cx="900" cy="720" rx="420" ry="190" fill="#1d560b" opacity="0.4" filter="url(#blurL)"/>
+  </g>
+
+  <!-- foreground ridge -->
+  <path d="M0 655 C 250 600, 520 695, 1024 612 L1024 768 L0 768 Z" fill="url(#front)"/>
+  <path d="M0 655 C 250 600, 520 695, 1024 612" fill="none" stroke="#7fc43a" stroke-width="2" opacity="0.5" filter="url(#blurS)"/>
 </svg>
