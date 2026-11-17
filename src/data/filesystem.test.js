@@ -40,6 +40,28 @@ describe('fake file system', () => {
     expect(resolvePath(synthetic, beta.path).open.payload.text).toContain('beta bullet');
     expect(acme.name).toBe('Acme.txt');
   });
+  it('never produces a double-dot file name, e.g. from a company that ends in "Ltd."', () => {
+    const names = resolvePath(fs, `${PATHS.myDocuments}\\Projects`).children.map((c) => c.name);
+    expect(names.filter((n) => n.includes('..'))).toEqual([]);
+    expect(names).toContain('Innoduction Group INC Ltd.txt');
+  });
+  it('drops trailing dots and spaces from the name part, and keeps same-name jobs unique and reachable', () => {
+    const synthetic = buildFileSystem({
+      ...resume,
+      experience: [
+        { period: '2020', title: 'Dev', company: 'Acme Ltd., Hong Kong', bullets: ['dotted bullet'] },
+        { period: '2021', title: 'Lead.', company: 'Acme Ltd', bullets: ['plain bullet'] },
+      ],
+    });
+    const [dotted, plain] = resolvePath(synthetic, `${PATHS.myDocuments}\\Projects`).children;
+    for (const f of [dotted, plain]) {
+      expect(f.name).not.toContain('..');
+      expect(f.name).not.toMatch(/[. ]\.txt$/); // nothing but a real character right before the extension
+    }
+    expect(dotted.name).not.toBe(plain.name);
+    expect(resolvePath(synthetic, dotted.path).open.payload.text).toContain('dotted bullet');
+    expect(resolvePath(synthetic, plain.path).open.payload.text).toContain('plain bullet');
+  });
   it('maps executables to apps and documents to viewers', () => {
     expect(resolvePath(fs, 'C:\\WINDOWS\\system32\\sol.exe').open).toEqual({ app: 'sol' });
     expect(resolvePath(fs, `${PATHS.myDocuments}\\resume.pdf`).open).toEqual({ app: 'reader' });

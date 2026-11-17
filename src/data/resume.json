@@ -91,9 +91,9 @@
       "title": "Junior Analyst Programmer",
       "company": "Makeitfun Studio Limited, Hong Kong",
       "bullets": [
-        "Develop interactive web game from PlayCanvas with Socket.IO for shopping mall product launch event",
-        "Maintain and fix bugs in launched apps",
-        "Implement APIs to generate student records report based on database data"
+        "Developed interactive web game with PlayCanvas and Socket.IO for shopping mall product launch event",
+        "Maintained and fixed bugs in launched apps",
+        "Implemented APIs to generate student records report based on database data"
       ]
     },
     {
@@ -101,12 +101,12 @@
       "title": "Mobile App Developer",
       "company": "Innoduction Group INC Ltd., Hong Kong",
       "bullets": [
-        "Database and architectural design based on project requirements",
-        "Build iOS and Android applications with Unity",
-        "Analyze and integrate database data to generate reports based on client's requirements",
-        "API implementation for application development and report generation",
-        "Debug and fix crashes and platform-specific problems",
-        "Develop interactive ebook and assessment platform for schools"
+        "Designed the database and architecture based on project requirements",
+        "Built iOS and Android applications with Unity",
+        "Analyzed and integrated database data to generate reports based on client's requirements",
+        "Implemented APIs for application development and report generation",
+        "Debugged and fixed crashes and platform-specific problems",
+        "Developed interactive ebook and assessment platform for schools"
       ]
     },
     {
@@ -114,12 +114,12 @@
       "title": "Game Programmer",
       "company": "TBS Interactive Limited, Hong Kong",
       "bullets": [
-        "Develop interactive photo/video booths, motion tracking games, single or multi-touch games, and Arduino-powered interactive games for product launch events, retail stores, exhibitions, and malls",
-        "Working with other programmers and artists in order to create strong prototypes that prove design ideas",
-        "Troubleshooting and fixing bugs on existing projects"
+        "Developed interactive photo/video booths, motion tracking games, single or multi-touch games, and Arduino-powered interactive games for product launch events, retail stores, exhibitions, and malls",
+        "Worked with other programmers and artists to create strong prototypes that proved design ideas",
+        "Troubleshot and fixed bugs on existing projects"
       ]
     }
   ],
   "sourceBranch": "main",
-  "updated": "2026-11-15"
+  "updated": "2026-11-17"
 }

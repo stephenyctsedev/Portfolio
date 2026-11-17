@@ -40,7 +40,8 @@ const projectFolder = (project) => folder(
 const driveError = (title, text) => ({ app: 'error', payload: { title, text, buttons: ['Retry', 'Cancel'] } });
 const binError = { app: 'error', payload: { title: 'Recycle Bin', text: 'This file is in the Recycle Bin. Restore it before opening it.' } };
 
-const safeName = (company) => company.split(',')[0].trim().replace(/[\\/:*?"<>|]/g, '');
+/** Windows forbids a trailing dot or space in a name, and ".txt" is appended later ("… Ltd." + ".txt" = "Ltd..txt"). */
+const safeName = (company) => company.split(',')[0].replace(/[\\/:*?"<>|]/g, '').replace(/[. ]+$/, '').trim();
 
 /** One file name per job: the company, plus the job title only where two jobs share a company (e.g. several personal projects). */
 const projectFileNames = (jobs) => {
