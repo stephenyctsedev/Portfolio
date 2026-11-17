@@ -19,3 +19,30 @@ h3 { font-family: "Times New Roman", serif; color: #0a246a; border-bottom: 1px d
 .skills td { vertical-align: top; padding-right: 40px; }
 ul { margin: 4px 0 8px; padding-left: 20px; }
 .footer { background: #d4dff0; text-align: center; font-size: 10px; color: #445; padding: 6px; border-top: 1px solid #9ab; }
+
+/* Narrow viewports (a phone, or an IE window dragged small): the 760px table reflows to one readable column.
+   The default 800px IE window is wider than this, so the desktop look is unchanged. */
+@media (max-width: 699.98px) {
+  body { font-size: 15px; }
+  /* table-layout: fixed -- otherwise the nowrap marquee (~1.5k px wide) stretches the whole table past the screen. */
+  .page { width: 100%; table-layout: fixed; margin: 0; border-width: 0; }
+  .banner h1 { font-size: 30px; }
+  .banner h2 { font-size: 14px; padding: 0 12px; }
+  .marquee { font-size: 13px; }
+  .construction { font-size: 13px; }
+  .nav { padding: 4px 8px; line-height: 1; }
+  .nav a { display: inline-block; padding: 9px 5px; }
+  .content { padding: 8px 16px 20px; overflow-wrap: anywhere; }
+  h3 { font-size: 21px; }
+  .jobs, .jobs tbody, .jobs tr, .jobs td { display: block; width: auto; }
+  .jobs tr { border-bottom: 1px solid #dde; padding: 8px 0; }
+  .jobs td { border-bottom: 0; padding: 2px 0; }
+  .jobs .period { font-size: 13px; }
+  .skills, .skills tbody, .skills tr, .skills td { display: block; }
+  .skills td { padding: 0; }
+  .edu { width: 100%; }
+  .edu .period { width: 52px; }
+  .period { white-space: normal; }
+  .links li { margin: 6px 0; }
+  .footer { font-size: 12px; }
+}

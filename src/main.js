@@ -2,6 +2,7 @@ import './styles/base.css';
 import { pickMode, detectEnv, wantsResume } from './modes.js';
 import { createSkipLink, hideWhileScreenFocused } from './skipRoom.js';
 import { createDesktop } from './xp/createDesktop.js';
+import { mountPhone } from './phone.js';
 import resume from './data/resume.json';
 import portfolio from './data/portfolio.json';
 import { initAnalytics, track } from './analytics.js';
@@ -19,6 +20,13 @@ const screenEl = document.createElement('div');
 const desktop = createDesktop(screenEl, { resume, portfolio, pdfHref, mediaBase, repoUrl: REPO_URL, reducedMotion, track });
 
 (async () => {
+  if (mode === 'phone') {
+    // Reuses the desktop's storage and tracked openExternal; the desktop itself is never powered on here.
+    const { storage, openExternal } = desktop.ctx;
+    mountPhone(app, { resume, pdfHref, repoUrl: REPO_URL, storage, openExternal, track });
+    track('site_mode', { mode: 'phone' });
+    return;
+  }
   if (mode === 'room') {
     try {
       // Created before the room's dynamic import so it is usable while the room is still loading.

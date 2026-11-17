@@ -89,4 +89,33 @@ describe('renderHomepage', () => {
     const css = readFileSync('src/xp/apps/homepage.css', 'utf8');
     expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)[^}]*\.marquee-text[^}]*animation: none/s);
   });
+
+  // The page is a fixed 760px table; on a phone (and a narrowed IE window) it has to reflow instead.
+  describe('narrow layout', () => {
+    const narrow = async () => {
+      const { readFileSync } = await import('node:fs');
+      const css = readFileSync('src/xp/apps/homepage.css', 'utf8');
+      const start = css.indexOf('@media (max-width: 699.98px)');
+      expect(start).toBeGreaterThan(-1);
+      return css.slice(start);
+    };
+
+    it('lets the page table shrink to the viewport instead of staying 760px wide', async () => {
+      expect(await narrow()).toMatch(/\.page\s*\{[^}]*width:\s*100%/);
+    });
+    it('uses a fixed table layout so the nowrap marquee cannot widen the page past the screen', async () => {
+      expect(await narrow()).toMatch(/\.page\s*\{[^}]*table-layout:\s*fixed/);
+    });
+    it('stacks the experience and skills tables into one column', async () => {
+      const css = await narrow();
+      expect(css).toMatch(/\.jobs td[^{]*\{[^}]*display:\s*block/);
+      expect(css).toMatch(/\.skills td[^{]*\{[^}]*display:\s*block/);
+    });
+    it('does not touch the default (800px IE window) layout', async () => {
+      const { readFileSync } = await import('node:fs');
+      const css = readFileSync('src/xp/apps/homepage.css', 'utf8');
+      const outside = css.slice(0, css.indexOf('@media (max-width: 699.98px)'));
+      expect(outside).not.toMatch(/\.jobs td[^{]*\{[^}]*display:\s*block/);
+    });
+  });
 });

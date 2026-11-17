@@ -10,7 +10,7 @@ export function registerInternetExplorer(registry) {
   registry.register('iexplore', { name: 'Internet Explorer', icon: 'ie', launch: openInternetExplorer });
 }
 
-function nextVisitorNumber(storage) {
+export function nextVisitorNumber(storage) {
   const count = Number(storage.get(VISITOR_KEY) ?? 0) + 1;
   storage.set(VISITOR_KEY, String(count));
   return 1337 + count;

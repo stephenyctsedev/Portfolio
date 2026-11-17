@@ -14,6 +14,14 @@ html, body { margin: 0; height: 100%; background: #000; color: #ddd; font-family
    taskbar can no longer cover half of it. */
 .flat-stage.has-notice { grid-template-rows: minmax(0, 1fr) 28px; }
 .flat-notice { grid-row: 2; align-self: center; width: 100%; text-align: center; font-size: 12px; color: #8fa0c0; }
+/* Phone layout: the résumé fills the screen, with a slim bar at the bottom to open the XP desktop. 100dvh-safe: #app is fixed to the viewport. */
+.phone-stage { position: absolute; inset: 0; display: flex; flex-direction: column; background: #0c2147; }
+.phone-page { flex: 1; min-height: 0; width: 100%; border: 0; background: #fff; }
+.phone-bar { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); background: linear-gradient(#245edb, #1941a5); border-top: 1px solid #5b8def; font: 13px Tahoma, Verdana, sans-serif; }
+.phone-desktop { color: #fff; font-weight: bold; text-decoration: none; padding: 6px 0; }
+.phone-desktop:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.phone-hint { color: #bcd2ff; font-size: 12px; white-space: nowrap; }
+
 /* "Skip the room" link: z-index 20 sits above .room-loading (z-index 10, room.css) so it is usable
    while the black BIOS overlay is still up. Values mirror .room-btn, which is lazy-loaded with the room. */
 .skip-room { position: absolute; top: 12px; left: 16px; z-index: 20; padding: 6px 12px; border: 1px solid rgba(62,233,255,.5); border-radius: 4px; background: rgba(10,8,30,.75); color: #cfe6ff; font: 13px Tahoma, Verdana, sans-serif; text-decoration: none; }

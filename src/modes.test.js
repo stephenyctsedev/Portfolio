@@ -35,8 +35,22 @@ describe('pickMode', () => {
   it('falls back to flat on coarse pointers', () => {
     expect(pickMode({ ...desktop, coarsePointer: true })).toBe('flat');
   });
-  it('falls back to flat under 900px wide', () => {
+  it('falls back to flat between 700px and 900px wide', () => {
     expect(pickMode({ ...desktop, viewportWidth: 899 })).toBe('flat');
+    expect(pickMode({ ...desktop, viewportWidth: 700 })).toBe('flat');
     expect(pickMode({ ...desktop, viewportWidth: 900 })).toBe('room');
+  });
+  it('picks the phone résumé under 700px wide, with or without a touch screen or WebGL2', () => {
+    expect(pickMode({ ...desktop, viewportWidth: 699 })).toBe('phone');
+    expect(pickMode({ ...desktop, viewportWidth: 390, coarsePointer: true })).toBe('phone');
+    expect(pickMode({ ...desktop, viewportWidth: 390, hasWebGL2: false })).toBe('phone');
+  });
+  it('keeps a touch-screen tablet (wide enough) on the flat desktop', () => {
+    expect(pickMode({ ...desktop, viewportWidth: 820, coarsePointer: true })).toBe('flat');
+  });
+  it('lets ?mode= override the phone layout in both directions', () => {
+    expect(pickMode({ ...desktop, viewportWidth: 390, query: '?mode=flat' })).toBe('flat');
+    expect(pickMode({ ...desktop, viewportWidth: 390, query: '?mode=room' })).toBe('room');
+    expect(pickMode({ ...desktop, viewportWidth: 1440, query: '?mode=phone' })).toBe('phone');
   });
 });
