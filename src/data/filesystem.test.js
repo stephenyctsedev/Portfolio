@@ -154,6 +154,18 @@ describe('live link shortcut in a project folder', () => {
     expect(folderOf(noUrl, 'Dior Lip Glow').children.map((c) => c.name)).toEqual(['img1.jpg']);
   });
 
+  it('names the shortcut with the project\'s own verb when it has one', () => {
+    const tryIt = { projects: [{ ...withUrl.projects[0], linkVerb: 'Try' }] };
+    expect(folderOf(tryIt, 'Dior Lip Glow').children.map((c) => c.name)).toEqual(['img1.jpg', 'Try Dior Lip Glow.url']);
+  });
+
+  it('ships the warehouse & group-buy demo with a shortcut to the copy hosted on this site', () => {
+    const folder = folderOf(portfolioData, 'Warehouse & Group Buy');
+    const link = folder.children.find((c) => c.kind === 'shortcut');
+    expect(link.name).toBe('Try Warehouse & Group Buy.url');
+    expect(link.open.payload.url).toBe('https://stephenyctsedev.github.io/Portfolio/demos/internal-app/');
+  });
+
   it('ships the real Coin Pusher folder with its PlayCanvas shortcut', () => {
     const folder = folderOf(portfolioData, 'Coin Pusher');
     const link = folder.children.find((c) => c.kind === 'shortcut');

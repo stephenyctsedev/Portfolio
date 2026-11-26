@@ -26,8 +26,9 @@ const mediaFile = (item, slug, index) => ({
 
 // A project that is still playable online gets an Internet Shortcut sitting next to its
 // screenshots, the way XP kept .url files in a folder. It goes last so the media indices
-// the viewer opens by stay in step with the portfolio record.
-const liveLink = (project) => shortcut(`Play ${project.folder}.url`, 'url', { app: 'external', payload: { url: project.url } });
+// the viewer opens by stay in step with the portfolio record. Games say "Play"; a project
+// that is not a game names its own verb in `linkVerb` ("Try", "Open", ...).
+const liveLink = (project) => shortcut(`${project.linkVerb ?? 'Play'} ${project.folder}.url`, 'url', { app: 'external', payload: { url: project.url } });
 
 const projectFolder = (project) => folder(
   project.folder,
