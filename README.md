@@ -56,10 +56,17 @@ when the encoded file is missing.
 ## Hosted demos
 
 `public/demos/internal-app/` is a static copy of the warehouse & group-buy apps demo
-(built from the private `internal-app-demo` repo with `npm run build:demo`, which writes
-`docs/`). It runs on sample data in the visitor's browser and is served at
-`/Portfolio/demos/internal-app/`; the "Warehouse & Group Buy" folder in My Pictures links to it.
+(built from the [`internal-app-demo`](https://github.com/stephenyctsedev/internal-app-demo) repo with
+`npm run build:demo`, which writes `docs/`). It runs on sample data in the visitor's browser and is served at
+`/Portfolio/demos/internal-app/`; the "Warehouse & Group Buy" folder in My Pictures links to it
+and to the source repo.
+
 To refresh it, rebuild there and copy `docs/` over this folder (leave out `.nojekyll`).
+
+A portfolio project can name the job it was built at with `"job"`, the start of that job's
+company line in `resume.json`. The project then shows "Built at work" in Explorer, and the job
+lists it in its `Projects\*.txt` file and under its bullets on the homepage, so the link survives
+`npm run sync-resume`. `"sourceUrl"` adds a "View source on GitHub" shortcut to the folder.
 
 ## Build and deploy
 

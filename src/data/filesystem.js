@@ -29,14 +29,31 @@ const mediaFile = (item, slug, index) => ({
 // the viewer opens by stay in step with the portfolio record. Games say "Play"; a project
 // that is not a game names its own verb in `linkVerb` ("Try", "Open", ...).
 const liveLink = (project) => shortcut(`${project.linkVerb ?? 'Play'} ${project.folder}.url`, 'url', { app: 'external', payload: { url: project.url } });
+// A project whose code is public also gets a shortcut to its repository, after the live link.
+const sourceLink = (project) => shortcut('View source on GitHub.url', 'url', { app: 'external', payload: { url: project.sourceUrl } });
 
-const projectFolder = (project) => folder(
+/**
+ * The job a project was built at, if any. A project names it in `job` with the start of the
+ * job's company line in resume.json ("Acme" matches "Acme, Winnipeg, Canada"), so the record
+ * keeps working when the Resume sync rewrites the rest of that line.
+ */
+export const jobOfProject = (project, resume) => (project.job
+  ? resume.experience.find((job) => job.company.startsWith(project.job)) ?? null
+  : null);
+
+/** The portfolio projects built at a job, in portfolio order. */
+export const projectsOfJob = (job, portfolio) => (portfolio?.projects ?? []).filter((p) => p.job && job.company.startsWith(p.job));
+
+const PICTURES_PATH = `${PATHS.myDocuments}${SEP}My Pictures`;
+
+const projectFolder = (project, resume) => folder(
   project.folder,
   [
     ...project.media.map((item, index) => mediaFile(item, project.slug, index)),
     ...(project.url ? [liveLink(project)] : []),
+    ...(project.sourceUrl ? [sourceLink(project)] : []),
   ],
-  { icon: 'pictures', project },
+  { icon: 'pictures', project, job: jobOfProject(project, resume) },
 );
 const driveError = (title, text) => ({ app: 'error', payload: { title, text, buttons: ['Retry', 'Cancel'] } });
 const binError = { app: 'error', payload: { title: 'Recycle Bin', text: 'This file is in the Recycle Bin. Restore it before opening it.' } };
@@ -50,7 +67,17 @@ const projectFileNames = (jobs) => {
   return jobs.map((job, i) => (byCompany.filter((name) => name === byCompany[i]).length > 1 ? `${byCompany[i]} - ${safeName(job.title)}` : byCompany[i]));
 };
 
-const jobText = (job) => [job.title, job.company, job.period, '', ...job.bullets.map((b) => `- ${b}`)].join('\n');
+const projectText = (project) => [
+  `* ${project.name}`,
+  `  ${PICTURES_PATH}${SEP}${project.folder}`,
+  ...(project.url ? [`  Demo:   ${project.url}`] : []),
+  ...(project.sourceUrl ? [`  Source: ${project.sourceUrl}`] : []),
+];
+
+const jobText = (job, projects = []) => [
+  job.title, job.company, job.period, '', ...job.bullets.map((b) => `- ${b}`),
+  ...(projects.length ? ['', 'Projects built in this job:', ...projects.flatMap(projectText)] : []),
+].join('\n');
 
 const readmeText = (resume) => `${resume.displayName} — ${resume.title}
 ==============================
@@ -84,9 +111,9 @@ const todoText = `TODO
 
 export function buildFileSystem(resume, portfolio = { projects: [] }) {
   const fileNames = projectFileNames(resume.experience);
-  const projects = resume.experience.map((job, i) => notepadFile(`${fileNames[i]}.txt`, jobText(job)));
+  const projects = resume.experience.map((job, i) => notepadFile(`${fileNames[i]}.txt`, jobText(job, projectsOfJob(job, portfolio))));
   const myDocuments = folder('My Documents', [
-    folder('My Pictures', (portfolio.projects ?? []).map(projectFolder), { icon: 'pictures' }),
+    folder('My Pictures', (portfolio.projects ?? []).map((project) => projectFolder(project, resume)), { icon: 'pictures' }),
     folder('My Music', []),
     folder('Projects', projects),
     file('resume.pdf', 'pdf', { app: 'reader' }),

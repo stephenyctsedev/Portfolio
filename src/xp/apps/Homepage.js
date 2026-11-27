@@ -1,10 +1,10 @@
 import homepageCss from './homepage.css?raw';
-import { PATHS } from '../../data/filesystem.js';
+import { PATHS, projectsOfJob } from '../../data/filesystem.js';
 
 const esc = (value) => String(value).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 /** Early-2000s personal homepage as a full HTML document for an <iframe srcdoc>. */
-export function renderHomepage(resume, { pdfHref, repoUrl, visitors = 1337 } = {}) {
+export function renderHomepage(resume, { pdfHref, repoUrl, portfolio, visitors = 1337 } = {}) {
   const { displayName, title, summary, contact, expertise, languages, education, experience, updated } = resume;
   const half = Math.ceil(expertise.length / 2);
   const columns = [expertise.slice(0, half), expertise.slice(half)];
@@ -12,7 +12,9 @@ export function renderHomepage(resume, { pdfHref, repoUrl, visitors = 1337 } = {
   const pdfLink = (label) => `<a class="pdf" href="${esc(pdfHref)}" data-app="reader" target="_blank" rel="noopener">${label}</a>`;
   const external = (href, label) => `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(label)}</a>`;
   const PICTURES = `${PATHS.myDocuments}\\My Pictures`;
-  const pictures = (label) => `<a href="#projects" data-app="explorer" data-path="${esc(PICTURES)}">${esc(label)}</a>`;
+  const pictures = (label, path = PICTURES) => `<a href="#projects" data-app="explorer" data-path="${esc(path)}">${esc(label)}</a>`;
+  // A project built at a job sits under its bullets: screenshots in My Pictures, plus the demo and source when public.
+  const projectLine = (p) => `<p class="job-project">Project: ${pictures(p.name, `${PICTURES}\\${p.folder}`)}${p.url ? ` &middot; ${external(p.url, `${p.linkVerb ?? 'Play'} the demo`)}` : ''}${p.sourceUrl ? ` &middot; ${external(p.sourceUrl, 'Source on GitHub')}` : ''}</p>`;
 
   return `<!doctype html>
 <html><head><meta charset="utf-8"><title>${esc(displayName)}'s Homepage</title><style>${homepageCss}</style></head>
@@ -30,7 +32,7 @@ export function renderHomepage(resume, { pdfHref, repoUrl, visitors = 1337 } = {
   <p>${esc(summary)}</p>
   <h3 id="experience">Experience</h3>
   <table class="jobs" width="100%" cellpadding="6" cellspacing="0">
-  ${experience.map((job) => `<tr><td class="period">${esc(job.period)}</td><td><b>${esc(job.title)}</b><br><i>${esc(job.company)}</i>${job.link ? ` &middot; ${external(job.link.href, job.link.label)}` : ''}<ul>${job.bullets.map((b) => `<li>${esc(b)}</li>`).join('')}</ul></td></tr>`).join('\n  ')}
+  ${experience.map((job) => `<tr><td class="period">${esc(job.period)}</td><td><b>${esc(job.title)}</b><br><i>${esc(job.company)}</i>${job.link ? ` &middot; ${external(job.link.href, job.link.label)}` : ''}<ul>${job.bullets.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>${projectsOfJob(job, portfolio).map(projectLine).join('')}</td></tr>`).join('\n  ')}
   </table>
   <h3 id="expertise">Expertise</h3>
   <table class="skills" cellpadding="2"><tr>${columns.map((col) => `<td><ul>${col.map((s) => `<li>${esc(s)}</li>`).join('')}</ul></td>`).join('')}</tr></table>
