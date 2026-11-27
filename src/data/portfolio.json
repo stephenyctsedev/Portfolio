@@ -4,8 +4,8 @@
       "slug": "warehouse-group-buy",
       "folder": "Warehouse & Group Buy",
       "name": "Warehouse Stock & Group-Buy Pickup Apps",
-      "category": "personal",
-      "tagline": "Two mobile-first internal web apps for a small food business, backed by Google Sheets.",
+      "category": "company",
+      "tagline": "Two mobile-first internal web apps I built for the store I work at, backed by Google Sheets.",
       "description": "A warehouse stock app (stock in/out, stocktake, multi-select bulk edits, camera barcode scanning, low-stock and shelf-refill alerts, movement history) and a weekly group-buy pickup counter (search by order number, name or product, swipe to confirm pickup with a timestamp). In production a Google Sheet is the database, and staff devices are bound with passkeys (WebAuthn) behind a Vercel serverless API. Bilingual Cantonese / English. The live demo runs on fictional sample data saved in your browser, so every feature can be tried safely.",
       "tech": [
         "React",
@@ -18,7 +18,9 @@
         "Playwright"
       ],
       "url": "https://stephenyctsedev.github.io/Portfolio/demos/internal-app/",
+      "sourceUrl": "https://github.com/stephenyctsedev/internal-app-demo",
       "linkVerb": "Try",
+      "job": "Sun Wah Supermarket",
       "media": [
         {
           "file": "img1.jpg",

@@ -174,6 +174,14 @@ describe('explorer thumbnails', () => {
     expect(details).toContain('Unity, C#');
   });
 
+  it('names the job a project was built at, and nothing for a project without one', () => {
+    const job = resume.experience.find((j) => j.company.startsWith('Sun Wah Supermarket'));
+    expect(openExplorer(ctx, PROJECT).el.querySelector('.xp-taskpane').textContent).not.toContain('Built at work');
+    ctx.fs = buildFileSystem(resume, { projects: [{ ...portfolio.projects[0], job: 'Sun Wah Supermarket' }] });
+    const details = openExplorer(ctx, PROJECT).el.querySelector('.xp-taskpane').textContent;
+    expect(details).toContain(`Built at work: ${job.title}, Sun Wah Supermarket (${job.period})`);
+  });
+
   it('adds the selected file next to the project details, without replacing them', () => {
     const win = openExplorer(ctx, PROJECT);
     win.el.querySelector('[data-name="img2.jpg"]').click();

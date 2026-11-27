@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import resume from './resume.json';
 import portfolioData from './portfolio.json';
-import { buildFileSystem, resolvePath, parentPath, PATHS } from './filesystem.js';
+import { buildFileSystem, resolvePath, parentPath, jobOfProject, PATHS } from './filesystem.js';
 
 describe('fake file system', () => {
   const fs = buildFileSystem(resume);
@@ -171,5 +171,36 @@ describe('live link shortcut in a project folder', () => {
     const link = folder.children.find((c) => c.kind === 'shortcut');
     expect(link.name).toBe('Play Coin Pusher.url');
     expect(link.open.payload.url).toBe('https://playcanv.as/p/gqstNXR5/');
+  });
+});
+
+describe('a project built at a job', () => {
+  const job = resume.experience.find((j) => j.company.startsWith('Sun Wah Supermarket'));
+  const fs = buildFileSystem(resume, portfolioData);
+  const folder = resolvePath(fs, `${PATHS.myDocuments}\\My Pictures\\Warehouse & Group Buy`);
+
+  it('links the warehouse & group-buy apps to the current job', () => {
+    expect(job.period).toMatch(/Present$/);
+    expect(folder.job).toBe(job);
+    expect(jobOfProject({ job: 'Nowhere Ltd' }, resume)).toBeNull();
+    expect(jobOfProject({}, resume)).toBeNull();
+  });
+  it('lists the project, its demo and its source in the job\'s text file', () => {
+    const text = resolvePath(fs, `${PATHS.myDocuments}\\Projects\\Sun Wah Supermarket.txt`).open.payload.text;
+    expect(text).toContain('Projects built in this job:');
+    expect(text).toContain('* Warehouse Stock & Group-Buy Pickup Apps');
+    expect(text).toContain(`${PATHS.myDocuments}\\My Pictures\\Warehouse & Group Buy`);
+    expect(text).toContain('Demo:   https://stephenyctsedev.github.io/Portfolio/demos/internal-app/');
+    expect(text).toContain('Source: https://github.com/stephenyctsedev/internal-app-demo');
+  });
+  it('leaves the other jobs\' text files without a project list', () => {
+    const other = resolvePath(fs, `${PATHS.myDocuments}\\Projects`).children.filter((c) => c.name !== 'Sun Wah Supermarket.txt');
+    for (const f of other) expect(f.open.payload.text).not.toContain('Projects built in this job:');
+  });
+  it('puts a source shortcut after the demo shortcut', () => {
+    const links = folder.children.filter((c) => c.kind === 'shortcut');
+    expect(links.map((c) => c.name)).toEqual(['Try Warehouse & Group Buy.url', 'View source on GitHub.url']);
+    expect(links[1].open).toEqual({ app: 'external', payload: { url: 'https://github.com/stephenyctsedev/internal-app-demo' } });
+    expect(folder.children.filter((c) => c.kind === 'file')).toHaveLength(folder.project.media.length);
   });
 });

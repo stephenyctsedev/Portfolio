@@ -23,7 +23,7 @@ const desktop = createDesktop(screenEl, { resume, portfolio, pdfHref, mediaBase,
   if (mode === 'phone') {
     // Reuses the desktop's storage and tracked openExternal; the desktop itself is never powered on here.
     const { storage, openExternal } = desktop.ctx;
-    mountPhone(app, { resume, pdfHref, repoUrl: REPO_URL, storage, openExternal, track });
+    mountPhone(app, { resume, portfolio, pdfHref, repoUrl: REPO_URL, storage, openExternal, track });
     track('site_mode', { mode: 'phone' });
     return;
   }

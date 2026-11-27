@@ -56,7 +56,7 @@ export function buildFavorites({ resume, repoUrl, registry, openExternal, goHome
 }
 
 export function openInternetExplorer(ctx) {
-  const { wm, dialogs, menus, registry, resume, pdfHref, repoUrl, storage, openExternal } = ctx;
+  const { wm, dialogs, menus, registry, resume, portfolio, pdfHref, repoUrl, storage, openExternal } = ctx;
   const body = document.createElement('div');
   body.className = 'xp-ie';
   body.innerHTML = `
@@ -99,7 +99,7 @@ export function openInternetExplorer(ctx) {
   function load() {
     status.textContent = 'Opening page...';
     addressInput.value = HOME_URL;
-    iframe.srcdoc = renderHomepage(resume, { pdfHref, repoUrl, visitors: nextVisitorNumber(storage) });
+    iframe.srcdoc = renderHomepage(resume, { pdfHref, repoUrl, portfolio, visitors: nextVisitorNumber(storage) });
   }
   iframe.addEventListener('load', () => {
     status.textContent = 'Done';

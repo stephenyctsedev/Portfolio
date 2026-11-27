@@ -22,14 +22,14 @@ export function phoneRegistry({ pdfHref, openExternal, goDesktop }) {
  * The résumé as a full-screen responsive page (the same synced homepage the IE window shows),
  * with a bottom bar that opens the real XP desktop for anyone who wants it.
  */
-export function mountPhone(root, { resume, pdfHref, repoUrl, storage, openExternal, track = () => {} }) {
+export function mountPhone(root, { resume, portfolio, pdfHref, repoUrl, storage, openExternal, track = () => {} }) {
   const stage = document.createElement('div');
   stage.className = 'phone-stage';
 
   const iframe = document.createElement('iframe');
   iframe.className = 'phone-page';
   iframe.title = `${resume.displayName}'s résumé`;
-  iframe.srcdoc = renderHomepage(resume, { pdfHref, repoUrl, visitors: nextVisitorNumber(storage) });
+  iframe.srcdoc = renderHomepage(resume, { pdfHref, repoUrl, portfolio, visitors: nextVisitorNumber(storage) });
 
   const bar = document.createElement('div');
   bar.className = 'phone-bar';

@@ -117,7 +117,8 @@ export function openExplorer(ctx, startPath = PATHS.myComputer) {
   function detailsLines(node) {
     if (node.project) {
       const p = node.project;
-      return [`<b>${esc(p.name)}</b>`, esc(p.tagline), esc(p.description), `<i>${esc(p.tech.join(', '))}</i>`];
+      const job = node.job ? [`Built at work: ${esc(node.job.title)}, ${esc(node.job.company.split(',')[0])} (${esc(node.job.period)})`] : [];
+      return [`<b>${esc(p.name)}</b>`, esc(p.tagline), ...job, esc(p.description), `<i>${esc(p.tech.join(', '))}</i>`];
     }
     return [`<b>${esc(node.name)}</b><br>${TYPE_NAMES[node.kind] ?? 'File'}`];
   }

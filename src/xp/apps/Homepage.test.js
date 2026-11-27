@@ -55,6 +55,30 @@ describe('renderHomepage', () => {
       expect(page({ ...job, link: undefined })).toContain('<i>Self-Directed, Winnipeg, Canada</i><ul>');
     });
   });
+  describe('a project built at a job', () => {
+    const job = { period: '2023 – Present', title: 'Store Associate', company: 'Acme Market, Winnipeg, Canada', bullets: ['stocked shelves'] };
+    const project = { folder: 'Stock App', name: 'Stock App', job: 'Acme Market', linkVerb: 'Try', url: 'https://example.com/demo/', sourceUrl: 'https://github.com/o/stock' };
+    const page = (portfolio) => renderHomepage({ ...resume, experience: [job, { ...job, company: 'Other Co, Winnipeg' }] }, { ...opts, portfolio });
+
+    it('lists the project under that job, with its folder, demo and source', () => {
+      const out = page({ projects: [project] });
+      expect(out).toContain('data-path="C:\\Documents and Settings\\Stephen\\My Documents\\My Pictures\\Stock App"');
+      expect(out).toContain('<a href="https://example.com/demo/" target="_blank" rel="noopener">Try the demo</a>');
+      expect(out).toContain('<a href="https://github.com/o/stock" target="_blank" rel="noopener">Source on GitHub</a>');
+      expect(out.match(/class="job-project"/g)).toHaveLength(1);
+    });
+    it('shows no project line without a portfolio or a matching job', () => {
+      expect(page(undefined)).not.toContain('job-project');
+      expect(page({ projects: [{ ...project, job: 'Nobody' }] })).not.toContain('job-project');
+    });
+    it('links the warehouse & group-buy apps under the current job in the real data', async () => {
+      const { default: portfolio } = await import('../../data/portfolio.json');
+      const out = renderHomepage(resume, { ...opts, portfolio });
+      const row = out.split('<tr>').find((r) => r.includes('Sun Wah Supermarket'));
+      expect(row).toContain('Warehouse Stock &amp; Group-Buy Pickup Apps');
+      expect(row).toContain('https://github.com/stephenyctsedev/internal-app-demo');
+    });
+  });
   it('links Projects and Portfolio into My Pictures rather than off-site', () => {
     const html = renderHomepage(resume, { pdfHref: '/x.pdf', repoUrl: 'https://example.com' });
     expect(html).toContain('data-app="explorer"');
