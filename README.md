@@ -53,6 +53,14 @@ It re-optimizes every photo, so it overwrites hand edits. The video is the one
 manual step: the script never runs ffmpeg, and prints the exact command to run
 when the encoded file is missing.
 
+## Hosted demos
+
+`public/demos/internal-app/` is a static copy of the warehouse & group-buy apps demo
+(built from the private `internal-app-demo` repo with `npm run build:demo`, which writes
+`docs/`). It runs on sample data in the visitor's browser and is served at
+`/Portfolio/demos/internal-app/`; the "Warehouse & Group Buy" folder in My Pictures links to it.
+To refresh it, rebuild there and copy `docs/` over this folder (leave out `.nojekyll`).
+
 ## Build and deploy
 
     npm run build        # dist/

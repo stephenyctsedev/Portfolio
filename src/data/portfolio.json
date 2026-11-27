@@ -1,6 +1,68 @@
 {
   "projects": [
     {
+      "slug": "warehouse-group-buy",
+      "folder": "Warehouse & Group Buy",
+      "name": "Warehouse Stock & Group-Buy Pickup Apps",
+      "category": "personal",
+      "tagline": "Two mobile-first internal web apps for a small food business, backed by Google Sheets.",
+      "description": "A warehouse stock app (stock in/out, stocktake, multi-select bulk edits, camera barcode scanning, low-stock and shelf-refill alerts, movement history) and a weekly group-buy pickup counter (search by order number, name or product, swipe to confirm pickup with a timestamp). In production a Google Sheet is the database, and staff devices are bound with passkeys (WebAuthn) behind a Vercel serverless API. Bilingual Cantonese / English. The live demo runs on fictional sample data saved in your browser, so every feature can be tried safely.",
+      "tech": [
+        "React",
+        "TypeScript",
+        "TanStack Query",
+        "Tailwind CSS",
+        "Google Sheets API",
+        "Vercel",
+        "WebAuthn",
+        "Playwright"
+      ],
+      "url": "https://stephenyctsedev.github.io/Portfolio/demos/internal-app/",
+      "linkVerb": "Try",
+      "media": [
+        {
+          "file": "img1.jpg",
+          "kind": "image",
+          "src": "portfolio/warehouse-group-buy/img1.jpg",
+          "thumb": "portfolio/warehouse-group-buy/thumbs/img1.jpg",
+          "width": 940,
+          "height": 1600
+        },
+        {
+          "file": "img2.jpg",
+          "kind": "image",
+          "src": "portfolio/warehouse-group-buy/img2.jpg",
+          "thumb": "portfolio/warehouse-group-buy/thumbs/img2.jpg",
+          "width": 940,
+          "height": 1600
+        },
+        {
+          "file": "img3.jpg",
+          "kind": "image",
+          "src": "portfolio/warehouse-group-buy/img3.jpg",
+          "thumb": "portfolio/warehouse-group-buy/thumbs/img3.jpg",
+          "width": 940,
+          "height": 1600
+        },
+        {
+          "file": "img4.jpg",
+          "kind": "image",
+          "src": "portfolio/warehouse-group-buy/img4.jpg",
+          "thumb": "portfolio/warehouse-group-buy/thumbs/img4.jpg",
+          "width": 940,
+          "height": 1600
+        },
+        {
+          "file": "img5.jpg",
+          "kind": "image",
+          "src": "portfolio/warehouse-group-buy/img5.jpg",
+          "thumb": "portfolio/warehouse-group-buy/thumbs/img5.jpg",
+          "width": 940,
+          "height": 1600
+        }
+      ]
+    },
+    {
       "slug": "coin-pusher",
       "folder": "Coin Pusher",
       "name": "Personal Project - Coin Pusher Game",
